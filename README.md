@@ -22,8 +22,6 @@ EasyEvents aims to provide a way to log video recording notes (events) in tandem
 
 #### Project Structure
 
-The **project** folder contains files related to project description, proposed object model, and uml diagrams.
-
 The **src** folder contains all necessary ***Java*** class files for running this program.
 
 The **test** folder contains all tests relative to ***Java*** classes in the **src** folder.
