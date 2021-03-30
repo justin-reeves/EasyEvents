@@ -6,7 +6,7 @@ package io.keyword.easyevents;
  * Created By: Justin Reeves, Pasang Sherpa, Xiaotian Wang (Xander)
  * Created On: 3/26/2021
  */
-class VideoRecording {
+class Session {
 
     // FIELDS
 
