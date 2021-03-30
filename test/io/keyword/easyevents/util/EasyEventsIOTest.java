@@ -5,6 +5,7 @@ import org.junit.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -48,10 +49,15 @@ public class EasyEventsIOTest {
     }
 
     @Test
+    public void getUserInput() {
+
+    }
+
+    @Test
     public void displayEnd_ShouldDisplayArgsInCorrectOrder() {
         EasyEventsIO.displayEnd("15:30:00", 15, "DISPLAYTEST.txt");
         List<String> lines = readTestingFile();
-
+        System.out.println(LocalDate.now().toString());
         assertEquals(lines.get(0), "Session event logging ended at 15:30:00.");
         assertEquals(lines.get(1), "Logged 15 events to file 'DISPLAYTEST.txt'");
     }

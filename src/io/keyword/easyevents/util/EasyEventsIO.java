@@ -1,5 +1,7 @@
 package io.keyword.easyevents.util;
 
+import com.apps.util.Prompter;
+
 import java.util.*;
 
 /**
@@ -11,12 +13,13 @@ import java.util.*;
 public class EasyEventsIO {
 
     // FIELDS
-
+    private static Prompter prompter;
 
     // CONSTRUCTORS
 
     private EasyEventsIO() {
         // All static utility class. Prevent instantiation.
+        prompter = new Prompter(new Scanner(System.in));
     }
 
     // BUSINESS METHODS
@@ -154,6 +157,13 @@ public class EasyEventsIO {
 
     // ACCESSOR METHODS
 
+    /**
+     * Allows for setting this IO handler's input stream.
+     * @param scanner The Scanner input stream to change to.
+     */
+    public static void setInputStream(Scanner scanner) {
+        EasyEventsIO.prompter = new Prompter(scanner);
+    }
 
     // HELPER METHODS
     private static void displayStartUsage() {
