@@ -1,4 +1,4 @@
-package io.keyword.easyevents.controller;
+package io.keyword.easyevents.client;
 
 /**
  * Class Description
@@ -6,7 +6,7 @@ package io.keyword.easyevents.controller;
  * Created By: Justin Reeves, Pasang Sherpa, Xiaotian Wang (Xander)
  * Created On: 3/26/2021
  */
-class EasyEventsController {
+class EasyEventsClient {
 
     // FIELDS
 
