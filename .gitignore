@@ -1,3 +1,6 @@
+# Test files
+resources/test/
+
 # IntelliJ metadata files
 .idea/
 *.iml
