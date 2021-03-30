@@ -4,9 +4,9 @@ import org.junit.Before;
 
 import static org.junit.Assert.*;
 
-public class VideoRecordingTest {
+public class SessionsTest {
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
     }
 }
