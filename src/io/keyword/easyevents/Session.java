@@ -31,14 +31,14 @@ public class Session {
     // BUSINESS METHODS
 
 
-    public static Session getInstance() {
+    public static Session getInstance() throws EventConstructorInvalidInputException{
         eventLog = EventLog.getInstance();
         eventLog.start(LocalTime.now());
         instance.setSessionName("EasyEvents_" + LocalDate.now().toString());
         return instance;
     }
 
-    public static Session getInstance(LocalTime time) {
+    public static Session getInstance(LocalTime time) throws EventConstructorInvalidInputException{
         Session s = getInstance();
         eventLog.start(time);
         return s;
@@ -50,7 +50,7 @@ public class Session {
         return s;
     }
 
-    public static Session getInstance(String sessionName, LocalTime time) {
+    public static Session getInstance(String sessionName, LocalTime time) throws EventConstructorInvalidInputException {
         Session s = getInstance();
         eventLog.start(time);
         s.setSessionName(sessionName);

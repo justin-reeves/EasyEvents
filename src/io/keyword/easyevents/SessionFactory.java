@@ -27,7 +27,7 @@ public class SessionFactory {
      *                    '-n' or '-t' flags and their respective values
      * @return Returns a Session with values set respective to flag usage.
      */
-    public static Session getSession(String startString) {
+    public static Session getSession(String startString) throws EventConstructorInvalidInputException{
         boolean commandHasNameFlag = startString.contains(" -n ");
         boolean commandHasTimeFlag = startString.contains(" -t ");
 

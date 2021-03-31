@@ -1,5 +1,6 @@
 package io.keyword.easyevents.client;
 
+import io.keyword.easyevents.EventConstructorInvalidInputException;
 import io.keyword.easyevents.Session;
 import io.keyword.easyevents.SessionFactory;
 import io.keyword.easyevents.util.EasyEventsIO;
@@ -16,8 +17,17 @@ class EasyEventsClient {
 
     public static void main(String[] args) {
         EasyEventsIO.displayIntro();
-        String startCommand = EasyEventsIO.promptStart();
-        Session session = SessionFactory.getSession(startCommand);
+        Session session = null;
+
+        while (session == null){
+            try {
+                String startCommand = EasyEventsIO.promptStart();
+                session = SessionFactory.getSession(startCommand);
+            }catch (EventConstructorInvalidInputException e){
+                System.out.println(e.getMessage());
+            }
+        }
+
         session.execute();
     }
 
