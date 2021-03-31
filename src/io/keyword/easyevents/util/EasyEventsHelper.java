@@ -50,6 +50,6 @@ public class EasyEventsHelper {
      * @return
      */
     public static String localtimeToFormattedString(LocalTime time){
-        return time.format(DateTimeFormatter.ISO_LOCAL_TIME);
+        return time.format(DateTimeFormatter.ofPattern("HH:mm:ss"));
     }
 }

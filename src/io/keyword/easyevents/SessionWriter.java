@@ -58,7 +58,7 @@ class SessionWriter {
                     ioE.printStackTrace();
                 }
             });
-            writer.write("Thanks for using Easy Events!");
+            writer.write(getWriter().sessionFooter());
         }
     }
 
@@ -69,6 +69,10 @@ class SessionWriter {
     private String sessionHeader(String sessionName){
         return String.format("Easy Events Session: %s\nCreated on: %s\n\nEvents:\n\nTime Elapsed\t\tEvent Description\n------------\t\t------------\n"
                 ,sessionName, LocalDate.now());
+    }
+
+    private String sessionFooter(){
+        return "\n\n\nThanks for using Easy Events!";
     }
 
     // OVERRIDES

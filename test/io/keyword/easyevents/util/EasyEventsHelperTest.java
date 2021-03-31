@@ -44,4 +44,10 @@ public class EasyEventsHelperTest {
         System.out.println(time);
         assertEquals(EasyEventsHelper.localtimeToFormattedString(time), "03:02:00");
     }
+
+    @Test
+    public void printTest(){
+        System.out.println(EasyEventsHelper.localTimeFromString("0:0:18"));
+        System.out.println(EasyEventsHelper.localtimeToFormattedString(LocalTime.of(13,13,13)));
+    }
 }

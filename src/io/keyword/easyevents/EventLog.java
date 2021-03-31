@@ -2,6 +2,7 @@ package io.keyword.easyevents;
 
 import io.keyword.easyevents.util.EasyEventsHelper;
 
+import java.time.DateTimeException;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.*;
@@ -90,6 +91,11 @@ class EventLog {
      * @param description event description
      */
     public void addEventOffset(LocalTime timeStamp, String description) {
+        if(timeStamp.isBefore(this.initialTime)){
+            throw new EventConstructorInvalidInputException(String.format("Event timestamp %s is before the initial timestamp %s. Please try again!", timeStamp, this.initialTime));
+        } else if(timeStamp.isAfter(LocalTime.now())){
+            throw new EventConstructorInvalidInputException(String.format("Event timestamp %s is after the current local time %s. Please try again!", timeStamp, LocalTime.now()));
+        }
         Event event = this.createEvent(this.timeFromDuration(this.getDuration(initialTime, timeStamp)), description);
         this.syncTreeSet.add(event);
     }
