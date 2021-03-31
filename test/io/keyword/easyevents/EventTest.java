@@ -3,8 +3,6 @@ package io.keyword.easyevents;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.time.LocalDate;
-
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -25,21 +23,21 @@ public class EventTest {
     }
 
     @Test
-    public void createNewEvent_onlyInputTimestamp() throws Event.EventConstructorInvalidInputException {
+    public void createNewEvent_onlyInputTimestamp() throws EventConstructorInvalidInputException {
         event = new Event(TIMESTAMP_HHMMSS);
-        assertTrue(event.getEventTimeStamp().toString().equals(LocalDate.now() + "T" + TIMESTAMP_HHMMSS + "Z"));
+        assertTrue(event.getEventTimeStamp().toString().equals(TIMESTAMP_HHMMSS ));
     }
 
-    @Test(expected = Event.EventConstructorInvalidInputException.class)
-    public void createNewEvent_invalidInputTimestamp_throwException() throws Event.EventConstructorInvalidInputException {
+    @Test(expected = EventConstructorInvalidInputException.class)
+    public void createNewEvent_invalidInputTimestamp_throwException() throws EventConstructorInvalidInputException {
         event = new Event(INVALID_TIMESTAMP_HH);
-        assertTrue(event.getEventTimeStamp().toString().equals(LocalDate.now() + "T" + INVALID_TIMESTAMP_HH + "Z"));
+        assertTrue(event.getEventTimeStamp().toString().equals(INVALID_TIMESTAMP_HH));
     }
 
-    @Test(expected = Event.EventConstructorInvalidInputException.class)
-    public void createNewEvent_nullInputTimestamp_throwException() throws Event.EventConstructorInvalidInputException {
+    @Test(expected = EventConstructorInvalidInputException.class)
+    public void createNewEvent_nullInputTimestamp_throwException() throws EventConstructorInvalidInputException {
         event = new Event(null);
-        assertTrue(event.getEventTimeStamp().toString().equals(LocalDate.now() + "T" + "Z"));
+        assertTrue(event.getEventTimeStamp().toString().isEmpty());
     }
 
     @Test
@@ -127,6 +125,5 @@ public class EventTest {
         event = new Event("01:01:01", "d");
         other = new Event("01:01:01", "c");
         assertTrue(event.compareTo(other) > 0); // timestamp different
-
     }
 }
