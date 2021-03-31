@@ -3,9 +3,10 @@ package io.keyword.easyevents;
 import io.keyword.easyevents.util.EasyEventsHelper;
 import io.keyword.easyevents.util.EasyEventsIO;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -57,13 +58,14 @@ public class Session {
 
     }
 
-    public void start() {
+    public void execute() {
         EasyEventsIO.info(
                 String.format(
-                        "Logging for session '%s' started at %s",
+                        "Logging for session '%s' started at %s\n",
                         getSessionName(),
                         EasyEventsHelper.localtimeToFormattedString(eventLog.getInitialTime())));
         logEvents();
+        endSession();
     }
 
 
@@ -89,14 +91,20 @@ public class Session {
             String input = EasyEventsIO.prompt(
                     "Enter command: ",
                     "^end$|" +
-                    "^event$|" +
-                    "^event +" + timeCommandRegex + " *$|" +
-                    "help .*",
+                            "^event$|" +
+                            "^event +" + timeCommandRegex + " *$|" +
+                            "help .*",
                     "Invalid command. Did you mean 'end' or 'event'? Type 'help end' or 'help event' for usage information.");
 
             if (input.startsWith("event")) {
                 String description = EasyEventsIO.prompt("Description: ");
-                createEvent(input, description);
+
+                try {
+                    createEvent(input, description);
+                } catch (EventConstructorInvalidInputException e) {
+                    System.out.println(e.getMessage());
+                }
+
             } else if (input.startsWith("help")) {
                 EasyEventsIO.displayUsage(input);
             } else if (confirmEnd()) {
@@ -111,7 +119,7 @@ public class Session {
                 "Your answer must be 'y', 'Y', 'n' or 'N'").matches("[yY]");
     }
 
-    private static void createEvent(String input, String description) {
+    private static void createEvent(String input, String description) throws EventConstructorInvalidInputException {
         LocalTime time = LocalTime.now();
 
         if (input.contains("-t")) {
@@ -122,11 +130,27 @@ public class Session {
     }
 
 
-    private static void endSession() {
+    public void endSession() {
+        eventLog.end(LocalTime.now());
+        EasyEventsIO.info(String.format("\nSession event logging was stopped at %s\n",
+                EasyEventsHelper.localtimeToFormattedString(LocalTime.now())));
 
+        writeToFile();
+
+        EasyEventsIO.info("Thank you for using Easy Events! Goodbye.");
+
+        try {
+            TimeUnit.SECONDS.sleep(3);
+        } catch (InterruptedException ignored) {
+        }
     }
 
-    private static void createFile() {
+    private void writeToFile() {
+        try {
+            SessionWriter.writeFile(getSessionName(), SessionWriter.FileType.TXT, eventLog.getAllEvents());
+        } catch (IOException e) {
+            System.out.println(e.toString());
+        }
 
     }
 

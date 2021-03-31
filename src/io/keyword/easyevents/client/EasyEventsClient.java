@@ -18,7 +18,7 @@ class EasyEventsClient {
         EasyEventsIO.displayIntro();
         String startCommand = EasyEventsIO.promptStart();
         Session session = SessionFactory.getSession(startCommand);
-        session.start();
+        session.execute();
     }
 
 }
