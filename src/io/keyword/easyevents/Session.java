@@ -16,7 +16,7 @@ import java.time.format.DateTimeFormatter;
 public class Session {
 
     // FIELDS
-    private EventLog eventslog;
+    private static EventLog eventslog;
     private String sessionName;
     private static final Session instance = new Session();
 
@@ -27,44 +27,52 @@ public class Session {
     }
 
     // BUSINESS METHODS
+
+
     public static Session getInstance() {
+        eventslog = EventLog.getInstance();
+        //eventslog.setInitialTime(LocalTime.now());
+        instance.setSessionName("EasyEvents_" + LocalDate.now().toString());
         return instance;
     }
 
-    /*public void startSession() {
-        eventslog = EventLog.getInstance();
-        eventslog.setInitialTime(LocalTime.now());
-        this.setSessionName("EasyEvents_" + LocalDate.now().toString());
-        start();
+    public static Session getInstance(LocalTime time) {
+        Session s = getInstance();
+        // eventslog.setInitialTime((time)); // Convert String to localTime
+        return s;
     }
 
-    public void startSession(String time ) {
-        this.startSession();
-        eventslog.setInitialTime( EasyEventsHelper.localTimeFromString(time)); // Convert String to localTime
-        start();
+    public static Session getInstance(String sessionName) {
+        Session s = getInstance();
+        s.setSessionName(sessionName);
+        return s;
     }
 
-    public void startSessionOnlyName(String sessionName) {
-        this.startSession();
-        this.setSessionName(sessionName);
-    }
-
-    public void startSession(String time, String sessionName ) {
-        this.startSession();
-        eventslog.setInitialTime( EasyEventsHelper.localTimeFromString(time)); // Convert String to localTime
-        this.setSessionName(sessionName);
-    }*/
-
-    public void createEvent(String sessionName){
+    public static Session getInstance(String sessionName, LocalTime time) {
+        Session s = getInstance();
+        // eventslog.setInitialTime((time)); // Convert String to localTime
+        s.setSessionName(sessionName);
+        return s;
 
     }
 
+    public void start() {
+        EasyEventsIO.info("Session event logging has started \n");
+        //EasyEventsIO.info("Session event logging has started at " + eventslog.getInitialTime().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
+    }
 
-    public void endSession(){
+
+
+    public void createEvent(String sessionName) {
 
     }
 
-    public void createFile(){
+
+    public void endSession() {
+
+    }
+
+    public void createFile() {
 
     }
 
@@ -81,9 +89,10 @@ public class Session {
 
 
     // HELPER METHODS
-   /* private void start(){
-        EasyEventsIO.println("Session event logging has started at " + eventslog.getInitialTime().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
-    }*/
+    private void logEvent(){
+
+    }
+
 
     // OVERRIDES
 

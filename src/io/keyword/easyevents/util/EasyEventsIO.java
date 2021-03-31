@@ -142,6 +142,10 @@ public class EasyEventsIO {
         return input;
     }
 
+    public static void info(String msg) {
+        prompter.info(msg);
+    }
+
     /**
      * Wrapper for System.out.print(str)
      */

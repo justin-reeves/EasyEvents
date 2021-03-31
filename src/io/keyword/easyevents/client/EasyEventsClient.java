@@ -38,18 +38,18 @@ class EasyEventsClient {
         String[] startCommand = result.split("-");
 
         if (startCommand.length == 1) {
-            session.getInstance();
+            session = Session.getInstance();
         } else if (startCommand.length == 2) {
             if (startCommand[1].startsWith("n")) {
-                session.getInstance(startCommand[1].substring(3));
+                session = Session.getInstance(startCommand[1].substring(2).trim());
             } else {
-                session.getInstance(LocalTime.parse(startCommand[1].substring(3)));
+                session = Session.getInstance(LocalTime.parse(startCommand[1].substring(2).trim()));
             }
         } else {
-            String name = startCommand[startCommand[1].startsWith("n") ? 1 : 2].substring(3);
-            LocalTime time = LocalTime.parse(startCommand[startCommand[1].startsWith("t") ? 1 : 2].substring(3));
+            String name = startCommand[startCommand[1].startsWith("n") ? 1 : 2].substring(2).trim();
+            LocalTime time = LocalTime.parse(startCommand[startCommand[1].startsWith("t") ? 1 : 2].substring(2).trim());
 
-            session.getInstance(name, time);
+            session = Session.getInstance(name, time);
         }
 
         session.start();
