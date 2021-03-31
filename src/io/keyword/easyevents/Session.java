@@ -1,5 +1,6 @@
 package io.keyword.easyevents;
 
+import io.keyword.easyevents.util.EasyEventsHelper;
 import io.keyword.easyevents.util.EasyEventsIO;
 
 import java.time.LocalDate;
@@ -31,14 +32,14 @@ public class Session {
 
     public static Session getInstance() {
         eventslog = EventLog.getInstance();
-        //eventslog.setInitialTime(LocalTime.now());
+        eventslog.setInitialTime(LocalTime.now());
         instance.setSessionName("EasyEvents_" + LocalDate.now().toString());
         return instance;
     }
 
     public static Session getInstance(LocalTime time) {
         Session s = getInstance();
-        // eventslog.setInitialTime((time)); // Convert String to localTime
+        eventslog.setInitialTime(time);
         return s;
     }
 
@@ -50,30 +51,15 @@ public class Session {
 
     public static Session getInstance(String sessionName, LocalTime time) {
         Session s = getInstance();
-        // eventslog.setInitialTime((time)); // Convert String to localTime
+        eventslog.setInitialTime(time);
         s.setSessionName(sessionName);
         return s;
 
     }
 
     public void start() {
-        EasyEventsIO.info("Session event logging has started \n");
-        //EasyEventsIO.info("Session event logging has started at " + eventslog.getInitialTime().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
-    }
-
-
-
-    public void createEvent(String sessionName) {
-
-    }
-
-
-    public void endSession() {
-
-    }
-
-    public void createFile() {
-
+        EasyEventsIO.info("Session event logging has started at " + eventslog.getInitialTime().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
+        logEvents();
     }
 
 
@@ -89,38 +75,50 @@ public class Session {
 
 
     // HELPER METHODS
-    private void logEvent(){
-        EasyEventsIO.info("You can now continuously enter events by using the 'event' command or\n"+
+    private static void logEvents() {
+        EasyEventsIO.info("You can now continuously enter events by using the 'event' command or\n" +
                 "typing 'end' to end your logging session. Type 'help' at anytime for usage information\n");
-        // while user has not confirmed to 'end' the session it will keep looping until user confirms the 'end'
-        while(true){
-            String input = EasyEventsIO.prompt("",
-                    "end|event|event -t ([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]",
-                    "Invalid command. Type 'help end' or 'help entry' for usage information.");
 
-            if(input.equals("end") && confirmEnd()){
+        // while user has not confirmed to 'end' the session it will keep looping until user confirms the 'end'
+        while (true) {
+            String input = EasyEventsIO.prompt("Enter command: ",
+                    "end|event|event -t ([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]|help.*",
+                    "Invalid command. Did you mean 'end' or 'entry'? Type 'help end' or 'help entry' for usage information.");
+
+            if (input.startsWith("event")) {
+                String description = EasyEventsIO.prompt("Description: ");
+                createEvent(input, description);
+            } else if (input.startsWith("help")) {
+                EasyEventsIO.displayUsage(input);
+            } else if (confirmEnd()) {
                 break;
             }
-            else {
-                String[] entryCommand = input.split(" ");
+        }
+    }
 
-                if (entryCommand.length == 1) {
-                    session = Session.getInstance();
-                } else if (entryCommand.length == 2) {
-                    if (entryCommand[1].startsWith("n")) {
-                        session = Session.getInstance(entryCommand[1].substring(2).trim());
-                    } else {
-                        session = Session.getInstance(LocalTime.parse(entryCommand[1].substring(2).trim()));
-                    }
-                }
-            }
+    private static boolean confirmEnd() {
+        return EasyEventsIO.prompt("Are you ready to end session (y/n)? ",
+                "[yYnN]",
+                "Your answer must be 'y', 'Y', 'n' or 'N'").matches("[yY]");
+    }
+
+    private static void createEvent(String input, String description) {
+        LocalTime time = LocalTime.now();
+
+        if (input.contains("-t")) {
+            time = EasyEventsHelper.localTimeFromString(input.split(" ")[2]);
         }
 
+        eventslog.addEvent(time, description);
+    }
+
+
+    public void endSession() {
 
     }
 
-    private boolean confirmEnd() {
-        return true;
+    public void createFile() {
+
     }
 
 
