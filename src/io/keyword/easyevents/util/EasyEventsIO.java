@@ -26,6 +26,61 @@ public class EasyEventsIO {
     // BUSINESS METHODS
 
     /**
+     * Uses a <code>Prompter</code> to display desired message
+     * @param msg The string to display to the client
+     */
+    public static void info(String msg) {
+        prompter.info(msg);
+    }
+
+    /**
+     * Uses a <code>Prompter</code> to wait for user input.
+     * @return Returns the user's input String
+     */
+    public static String prompt(String msg) {
+        return prompter.prompt(msg);
+    }
+
+    /**
+     * Uses a <code>Prompter</code> to wait for user input. User input must match provided 'pattern', or else
+     *  input is rejected and the user is presented a designated retry message and re-prompted.
+     * @param msg The prompt message to display to the user
+     * @param pattern The regex pattern to check user input against
+     * @param retryMsg The retry message presented to user when input does not match 'pattern'
+     * @return Returns the user's input String which matches the provided 'pattern'
+     */
+    public static String prompt(String msg, String pattern, String retryMsg) {
+        return prompter.prompt(msg, pattern, retryMsg);
+    }
+
+    /**
+     * Convenience method which waits for the initial EasyEvents 'start' command.
+     * @return Returns the String containing the 'start' command and any flags used
+     */
+    public static String promptStart() {
+        String result = "";
+        String nameCommandRegex = "-n ((\\\"[\\w\\- ]+\\\")|[\\w\\-]+)";
+        String timeCommandRegex = "-t ([01][\\d]|2[0-3]):[0-5][\\d]:[0-5][\\d]";
+
+        while (!result.startsWith("start")) {
+            result = EasyEventsIO.prompt(
+                    "Use 'start' command to begin event logging, or type 'help' for usage\n",
+                    "^start *$|" +
+                            "^start +" + nameCommandRegex + " *$|" +
+                            "^start +" + timeCommandRegex + " *$|" +
+                            "^start +" + nameCommandRegex + " +" + timeCommandRegex + " *$|" +
+                            "^start +" + timeCommandRegex + " +" + nameCommandRegex + " *$|" +
+                            "help .*",
+                    "Please type 'start' or 'help' with or without their respective OPTIONAL tags. See 'help' for details\n");
+            if (result.startsWith("help")) {
+                EasyEventsIO.displayUsage(result);
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * Displays, to the console, an Easy Events introduction statement
      * consisting of helpful commands and example usage.
      */
@@ -101,62 +156,6 @@ public class EasyEventsIO {
                 endTime, eventsLogged, fileName);
     }
 
-    /**
-     * Waits for the user to enter input into the console and returns an array
-     * of Strings delimited by '-' flag indicator
-     *
-     * @return Map<String> containing key, value pairs which are determined
-     * via splitting user input on the delimiter. The command value
-     * can be accessed via key = "cmd", and flags can be accessed via
-     * key = "[flag indicator]"
-     * <p>
-     * Ex: start -n Name Of Session -t 07:30:00
-     * <p>
-     * Key         Value
-     * -----       -----------------
-     * "cmd"       "start"
-     * "n"         "Name of Session"
-     * "t"         "07:30:00"
-     */
-    public static Map<String, String> getUserCommandInput() {
-        Scanner in = new Scanner(System.in);
-        Map<String, String> input = new HashMap<>();
-
-        return input;
-    }
-
-    /**
-     * Waits for the user to enter input into the console and returns the
-     * entirety of their input.
-     *
-     * @return String containing the users input as one String
-     */
-    public static String getUserInput() {
-        Scanner in = new Scanner(System.in);
-        String input = "";
-
-        while (in.hasNextLine()) {
-            input = input.concat(in.nextLine() + "\n");
-        }
-
-        return input;
-    }
-
-    public static void info(String msg) {
-        prompter.info(msg);
-    }
-
-    /**
-     * Wrapper for System.out.print(str)
-     */
-    public static String prompt(String msg) {
-        return prompter.prompt(msg);
-    }
-
-    public static String prompt(String msg, String pattern, String retryMsg) {
-        return prompter.prompt(msg, pattern, retryMsg);
-    }
-
     // ACCESSOR METHODS
 
     /**
@@ -179,6 +178,8 @@ public class EasyEventsIO {
                 "\n\t{OPTIONAL FLAGS}:\n" +
                         "\t-n:\tA [session name] is required when using this flag.\n" +
                         "\t\tDesignates file name of session output file.\n" +
+                        "\t\tFile name can only contain alphanumeric characters, underscore's '_',\n" +
+                        "\t\t   or spaces ' ' (if name is wrapped with double quotes, ex: \"name with spaces\"\n" +
                         "\t\tIf this flag is not used, output file name will be given a default name using the current date,\n" +
                         "\t\te.g. EasyEvent_03292021.txt\n" +
                         "\n\t-t:\tA [time: hh:mm:ss] is required when using this flag.\n" +

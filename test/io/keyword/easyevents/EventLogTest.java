@@ -1,11 +1,8 @@
 package io.keyword.easyevents;
 
-import i.keyword.easyevents.util.EasyEventsHelper;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.time.*;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 

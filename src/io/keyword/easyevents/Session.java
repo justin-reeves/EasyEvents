@@ -17,7 +17,7 @@ import java.time.format.DateTimeFormatter;
 public class Session {
 
     // FIELDS
-    private static EventLog eventslog;
+    private static EventLog eventLog;
     private String sessionName;
     private static final Session instance = new Session();
 
@@ -31,34 +31,45 @@ public class Session {
 
 
     public static Session getInstance() {
-        eventslog = EventLog.getInstance();
-        eventslog.setInitialTime(LocalTime.now());
+        eventLog = EventLog.getInstance();
+
+        eventLog.setInitialTime(LocalTime.now());
         instance.setSessionName("EasyEvents_" + LocalDate.now().toString());
+
         return instance;
     }
 
     public static Session getInstance(LocalTime time) {
         Session s = getInstance();
-        eventslog.setInitialTime(time);
+
+        eventLog.setInitialTime(time);
+
         return s;
     }
 
     public static Session getInstance(String sessionName) {
         Session s = getInstance();
+
         s.setSessionName(sessionName);
+
         return s;
     }
 
     public static Session getInstance(String sessionName, LocalTime time) {
         Session s = getInstance();
-        eventslog.setInitialTime(time);
-        s.setSessionName(sessionName);
-        return s;
 
+        eventLog.setInitialTime(time);
+        s.setSessionName(sessionName);
+
+        return s;
     }
 
     public void start() {
-        EasyEventsIO.info("Session event logging has started at " + eventslog.getInitialTime().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
+        EasyEventsIO.info(
+                String.format(
+                        "Session logging for '%s' started at %s",
+                        getSessionName(),
+                        eventLog.getInitialTime().format(DateTimeFormatter.ofPattern("HH:mm:ss"))));
         logEvents();
     }
 
@@ -78,11 +89,16 @@ public class Session {
     private static void logEvents() {
         EasyEventsIO.info("You can now continuously enter events by using the 'event' command or\n" +
                 "typing 'end' to end your logging session. Type 'help' at anytime for usage information\n");
+        String timeCommandRegex = "-t +([01][\\d]|2[0-3]):[0-5][\\d]:[0-5][\\d]";
 
         // while user has not confirmed to 'end' the session it will keep looping until user confirms the 'end'
         while (true) {
-            String input = EasyEventsIO.prompt("Enter command: ",
-                    "end|event|event -t ([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]|help.*",
+            String input = EasyEventsIO.prompt(
+                    "Enter command: ",
+                    "^end$|" +
+                    "^event$|" +
+                    "^event +" + timeCommandRegex + " *$|" +
+                    "help .*",
                     "Invalid command. Did you mean 'end' or 'entry'? Type 'help end' or 'help entry' for usage information.");
 
             if (input.startsWith("event")) {
@@ -109,15 +125,15 @@ public class Session {
             time = EasyEventsHelper.localTimeFromString(input.split(" ")[2]);
         }
 
-        eventslog.addEvent(time, description);
+        eventLog.addEvent(time, description);
     }
 
 
-    public void endSession() {
+    private static void endSession() {
 
     }
 
-    public void createFile() {
+    private static void createFile() {
 
     }
 

@@ -1,6 +1,7 @@
 package io.keyword.easyevents.client;
 
 import io.keyword.easyevents.Session;
+import io.keyword.easyevents.SessionFactory;
 import io.keyword.easyevents.util.EasyEventsIO;
 
 import java.time.LocalTime;
@@ -15,43 +16,9 @@ class EasyEventsClient {
 
     public static void main(String[] args) {
         EasyEventsIO.displayIntro();
-        String result = "";
-
-        while (!result.startsWith("start")) {
-            result = EasyEventsIO.prompt(
-                    "Use 'start' command to begin event logging, or type 'help' for usage\n",
-                    "start.*|help.*",
-                    "Please type 'start' or 'help' with or without their respective OPTIONAL tags. See 'help' for details\n");
-
-            if (result.startsWith("help")) {
-                EasyEventsIO.displayUsage(result);
-            }
-        }
-
-        Session session = null;
-
-        // Split start command from any optional flags provided.
-        // Flag idx's should be at ary[1] and possibly ary[3]
-        // A flag's argument should be the index of ary[flagIdx + i]
-        // EX: start -n name -t hh:mm:ss
-        // ary[] = {"start", "n name", "t hh:mm:ss"}
-        String[] startCommand = result.split("-");
-
-        if (startCommand.length == 1) {
-            session = Session.getInstance();
-        } else if (startCommand.length == 2) {
-            if (startCommand[1].startsWith("n")) {
-                session = Session.getInstance(startCommand[1].substring(2).trim());
-            } else {
-                session = Session.getInstance(LocalTime.parse(startCommand[1].substring(2).trim()));
-            }
-        } else {
-            String name = startCommand[startCommand[1].startsWith("n") ? 1 : 2].substring(2).trim();
-            LocalTime time = LocalTime.parse(startCommand[startCommand[1].startsWith("t") ? 1 : 2].substring(2).trim());
-
-            session = Session.getInstance(name, time);
-        }
-
+        String startCommand = EasyEventsIO.promptStart();
+        Session session = SessionFactory.getSession(startCommand);
         session.start();
     }
+
 }

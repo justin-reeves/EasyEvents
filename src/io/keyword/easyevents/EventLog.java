@@ -1,6 +1,6 @@
 package io.keyword.easyevents;
 
-import i.keyword.easyevents.util.EasyEventsHelper;
+import io.keyword.easyevents.util.EasyEventsHelper;
 
 import java.time.Duration;
 import java.time.Instant;
