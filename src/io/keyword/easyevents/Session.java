@@ -58,7 +58,11 @@ public class Session {
     }
 
     public void start() {
-        EasyEventsIO.info("Session event logging has started at " + eventLog.getInitialTime().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
+        EasyEventsIO.info(
+                String.format(
+                        "Logging for session '%s' started at %s",
+                        getSessionName(),
+                        EasyEventsHelper.localtimeToFormattedString(eventLog.getInitialTime())));
         logEvents();
     }
 
@@ -88,7 +92,7 @@ public class Session {
                     "^event$|" +
                     "^event +" + timeCommandRegex + " *$|" +
                     "help .*",
-                    "Invalid command. Did you mean 'end' or 'entry'? Type 'help end' or 'help entry' for usage information.");
+                    "Invalid command. Did you mean 'end' or 'event'? Type 'help end' or 'help event' for usage information.");
 
             if (input.startsWith("event")) {
                 String description = EasyEventsIO.prompt("Description: ");

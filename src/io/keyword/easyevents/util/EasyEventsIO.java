@@ -70,7 +70,7 @@ public class EasyEventsIO {
                             "^start +" + timeCommandRegex + " *$|" +
                             "^start +" + nameCommandRegex + " +" + timeCommandRegex + " *$|" +
                             "^start +" + timeCommandRegex + " +" + nameCommandRegex + " *$|" +
-                            "help .*",
+                            "help *.*",
                     "Please type 'start' or 'help' with or without their respective OPTIONAL tags. See 'help' for details\n");
             if (result.startsWith("help")) {
                 EasyEventsIO.displayUsage(result);
@@ -179,7 +179,7 @@ public class EasyEventsIO {
                         "\t-n:\tA [session name] is required when using this flag.\n" +
                         "\t\tDesignates file name of session output file.\n" +
                         "\t\tFile name can only contain alphanumeric characters, underscore's '_',\n" +
-                        "\t\t   or spaces ' ' (if name is wrapped with double quotes, ex: \"name with spaces\"\n" +
+                        "\t\t   or spaces ' ' (if name is wrapped with double quotes, ex: \"name with spaces\")\n" +
                         "\t\tIf this flag is not used, output file name will be given a default name using the current date,\n" +
                         "\t\te.g. EasyEvent_03292021.txt\n" +
                         "\n\t-t:\tA [time: hh:mm:ss] is required when using this flag.\n" +
