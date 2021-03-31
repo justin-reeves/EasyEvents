@@ -67,7 +67,7 @@ public class EasyEventsIO {
         String timeCommandRegex = "-t ([01][\\d]|2[0-3]):[0-5][\\d]:[0-5][\\d]";
 
         while (!result.startsWith("start")) {
-            result = EasyEventsIO.prompt(
+            result = prompt(
                     "Use 'start' command to begin event logging, or type 'help' for usage\n",
                     "^start *$|" +
                             "^start +" + nameCommandRegex + " *$|" +
@@ -77,7 +77,7 @@ public class EasyEventsIO {
                             "help *.*",
                     "Please type 'start' or 'help' with or without their respective OPTIONAL tags. See 'help' for details\n");
             if (result.startsWith("help")) {
-                EasyEventsIO.displayUsage(result);
+                displayUsage(result);
             }
         }
 
@@ -110,6 +110,16 @@ public class EasyEventsIO {
                         "\tend\n" +
                         "\t...\n" +
                         "-------------------------------------------------------------------------------------------------------");
+    }
+
+    /**
+     * Displays, to the console, the general information for the newly started session.
+     */
+    public static void displaySession(String sessionName, String startTime) {
+        info(String.format(
+                "Logging for session '%s' started at %s\n",
+                sessionName,
+                startTime));
     }
 
     /**
