@@ -42,7 +42,7 @@ class SessionWriter {
      * @param collection
      * @throws IOException
      */
-    public static void writeFile(String fileName, SessionWriter.FileType type , Collection<Event> collection) throws IOException {
+    public static Path writeFile(String fileName, SessionWriter.FileType type , Collection<Event> collection) throws IOException {
         Path path = Paths.get(System.getProperty("user.dir"), fileName + type.getFileType());
         if(Files.exists(path)){
             // add current time if file exists
@@ -60,6 +60,7 @@ class SessionWriter {
             });
             writer.write(getWriter().sessionFooter());
         }
+        return path;
     }
 
     // ACCESSOR METHODS

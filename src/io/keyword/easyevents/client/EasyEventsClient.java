@@ -18,7 +18,6 @@ class EasyEventsClient {
     public static void main(String[] args) {
         EasyEventsIO.displayIntro();
         Session session = null;
-
         while (session == null){
             try {
                 String startCommand = EasyEventsIO.promptStart();
