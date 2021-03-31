@@ -2,16 +2,16 @@ package io.keyword.easyevents.util;
 
 import io.keyword.easyevents.EventConstructorInvalidInputException;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZoneOffset;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.List;
+import java.util.Objects;
+import java.util.regex.PatternSyntaxException;
 
 public class EasyEventsHelper {
 
-
+    private EasyEventsHelper(){}
     /**
      * convert user input string to Instant
      *
@@ -20,19 +20,27 @@ public class EasyEventsHelper {
      */
     public static LocalTime localTimeFromString(String timeStamp) {
         try {
-            return LocalTime.parse(timeStamp);
-        } catch (DateTimeParseException de){
-            throw new EventConstructorInvalidInputException("Invalid input timestamp:" + timeStamp, de);
+            if(Objects.isNull(timeStamp)){
+                throw new IllegalArgumentException("Null input timestamp: " + timeStamp);
+            }
+            String[] timeParts = timeStamp.split(":");
+            switch(timeParts.length){
+                case 3:
+                    return LocalTime.of(Integer.parseInt(timeParts[0]), Integer.parseInt(timeParts[1]), Integer.parseInt(timeParts[2]));
+                case 2:
+                    return LocalTime.of(0, Integer.parseInt(timeParts[0]), Integer.parseInt(timeParts[1]));
+                case 1:
+                    return LocalTime.of(0, 0, Integer.parseInt(timeParts[0]));
+                default:
+                    throw new PatternSyntaxException("Invalid format timestamp: " + timeStamp, "HH:MM:SS", -1);
+            }
+        } catch (PatternSyntaxException e){
+            throw new PatternSyntaxException("Invalid format timestamp:" + timeStamp, "HH:MM:SS", -1);
+        } catch (DateTimeException de){
+            throw new DateTimeException("Hour, minute or second out of range");
+        } catch (NumberFormatException ne){
+            throw new NumberFormatException("Cannot parse empty String to Integer");
         }
-    }
-
-    /**
-     * convert string to an Instant object
-     * @param timeStamp
-     * @return
-     */
-    public static Instant instantFromString(String timeStamp) {
-        return LocalTime.parse(timeStamp, DateTimeFormatter.ISO_TIME).atDate(LocalDate.now()).toInstant(ZoneOffset.UTC);
     }
 
     /**
@@ -42,7 +50,6 @@ public class EasyEventsHelper {
      * @return
      */
     public static String localtimeToFormattedString(LocalTime time){
-        return time.format(DateTimeFormatter.ISO_TIME);
+        return time.format(DateTimeFormatter.ISO_LOCAL_TIME);
     }
-
 }

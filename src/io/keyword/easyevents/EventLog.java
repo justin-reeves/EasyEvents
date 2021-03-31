@@ -3,7 +3,6 @@ package io.keyword.easyevents;
 import io.keyword.easyevents.util.EasyEventsHelper;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -21,10 +20,12 @@ class EventLog {
 
     // FIELDS
     private NavigableSet<Event> events = new TreeSet<>(); // store all events; make it navigable
-    private static final EventLog eventLog = new EventLog();
     private NavigableSet<Event> syncTreeSet = Collections.synchronizedNavigableSet(events); // for client - server version app
 
+    private static EventLog eventLog = new EventLog();
+
     private LocalTime initialTime = LocalTime.now(); // current local time
+    private long offset = 0;
 
     // CONSTRUCTORS - singleton
     private EventLog() {
@@ -42,7 +43,7 @@ class EventLog {
      */
     public void start(LocalTime initialTime) {
         this.initialTime = initialTime;
-        this.addEvent("00:00:00", "Initial Event - Session starts;");
+        this.addEventNoOffset(LocalTime.of(0, 0, 0), "Initial Event - Session starts;");
     }
 
     public void start(String initialTime) {
@@ -51,15 +52,15 @@ class EventLog {
 
     /**
      * inserting a last event in events collection
+     *
      * @param endTime
      */
     public void end(LocalTime endTime) {
-        this.timeFromDuration(this.getDuration(endTime, initialTime));
-        this.addEvent(endTime, "Last Event - Session ends;");
+        this.addEventOffset(LocalTime.now(), "Last Event - Session ends;");
     }
 
     public void end(String endTime) {
-        this.end(EasyEventsHelper.localTimeFromString(endTime));
+        this.addEventNoOffset(EasyEventsHelper.localTimeFromString(endTime), "Last Event - Session ends;");
     }
 
     public Event getFirstEvent() {
@@ -73,17 +74,23 @@ class EventLog {
     }
 
     /**
-     * add an event into collection without event id
-     *
-     * @param timeStamp   user input in format hh:mm:ss
-     * @param description user input description
+     * this allows the user to input specific time elapsed from initial time
+     * @param timeStamp
+     * @param description
      */
-    public void addEvent(String timeStamp, String description) {
-        this.syncTreeSet.add(this.createEvent(timeStamp, description));
+    public void addEventNoOffset(LocalTime timeStamp, String description) {
+        Event event = this.createEvent(timeStamp, description);
+        this.syncTreeSet.add(event);
     }
 
-    public void addEvent(LocalTime timeStamp, String description) {
-        Event event = this.createEvent(this.timeFromDuration(this.getDuration(initialTime, timeStamp)),description);
+    /**
+     * use this method to allow EventLog to calculate duration from initialTime to a given LocalTime
+     *
+     * @param timeStamp   user provided LocalTime
+     * @param description event description
+     */
+    public void addEventOffset(LocalTime timeStamp, String description) {
+        Event event = this.createEvent(this.timeFromDuration(this.getDuration(initialTime, timeStamp)), description);
         this.syncTreeSet.add(event);
     }
 
@@ -102,7 +109,7 @@ class EventLog {
      */
     public List<Event> searchEvent(String keyword) {
         List<Event> list;
-        if(Objects.isNull(keyword)){
+        if (Objects.isNull(keyword)) {
             list = new ArrayList<>();
         } else {
             list = this.getAllEvents().stream().filter(e -> e.getDescription().toLowerCase().contains(keyword.toLowerCase()))
@@ -131,14 +138,32 @@ class EventLog {
     }
 
     // ASSESSOR METHODS
+
+    /**
+     * if offset exist
+     *
+     * @param time
+     */
+    public void setInitialTime(LocalTime time) {
+        this.setOffset(time);
+        this.initialTime = time;
+    }
+
     public LocalTime getInitialTime() {
         return initialTime;
     }
 
-    public void setInitialTime(LocalTime time){
-        this.initialTime = time;
-    }
     // HELPER METHODS
+    private void setOffset(LocalTime time) {
+        this.offset = this.getDuration(time, LocalTime.now()).toSeconds();
+        if (Math.abs(offset) <= 1) {
+            this.offset = 0;
+        }
+    }
+
+    private long getOffset() {
+        return this.offset;
+    }
 
     /**
      * calculate duration between two events
@@ -153,10 +178,6 @@ class EventLog {
 
     public Duration getDuration(LocalTime event1, LocalTime event2) {
         return Duration.between(event1, event2);
-    }
-
-    private Duration getDuration(Instant timeStamp1, Instant timeStamp2) {
-        return Duration.between(timeStamp1, timeStamp2);
     }
 
     public String timeFromDuration(Duration duration) {
@@ -174,6 +195,7 @@ class EventLog {
     /**
      * allows user creating an event with only time
      * then edit description later
+     *
      * @param timeStamp
      * @return
      */
@@ -190,5 +212,10 @@ class EventLog {
             Event e = iterator.next();
             e.setId(i);
         }
+    }
+
+    void clearEvents() {
+        this.events = new TreeSet<>();
+        syncTreeSet = Collections.synchronizedNavigableSet(events);
     }
 }
