@@ -16,7 +16,7 @@ import static org.junit.Assert.*;
  */
 public class EasyEventsIOTest {
     private static File outputContent;
-    private final PrintStream originalOut = System.out;
+    private static final PrintStream originalOut = System.out;
 
     @BeforeClass
     public static void beforeClass() {
@@ -24,26 +24,19 @@ public class EasyEventsIOTest {
 
         try {
             outputContent.createNewFile();
-        } catch (IOException ioe) {
-            System.out.println(ioe);
-        }
-    }
-
-    @Before
-    public void setUpStreams() {
-        try {
             System.setOut(new PrintStream(new FileOutputStream(outputContent)));
         } catch (IOException ioe) {
             System.out.println(ioe);
         }
     }
 
-    @After
-    public void restoreStreams() {
+    @AfterClass
+    public static void restoreStreams() {
         System.setOut(originalOut);
     }
 
     @Test
+    // Doing it this way to fix formatting and also verify by sight that it looks good.
     public void NOT_TEST_displayIntro() {
         EasyEventsIO.displayIntro();
     }
@@ -57,7 +50,7 @@ public class EasyEventsIOTest {
     public void displayEnd_ShouldDisplayArgsInCorrectOrder() {
         EasyEventsIO.displayEnd("15:30:00", 15, "DISPLAYTEST.txt");
         List<String> lines = readTestingFile();
-        System.out.println(LocalDate.now().toString());
+
         assertEquals(lines.get(0), "Session event logging ended at 15:30:00.");
         assertEquals(lines.get(1), "Logged 15 events to file 'DISPLAYTEST.txt'");
     }

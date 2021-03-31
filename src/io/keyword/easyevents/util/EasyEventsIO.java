@@ -14,6 +14,7 @@ public class EasyEventsIO {
 
     // FIELDS
     private static Prompter prompter;
+    private static EasyEventsIO instance = new EasyEventsIO();
 
     // CONSTRUCTORS
 
@@ -40,7 +41,7 @@ public class EasyEventsIO {
                         "\t\t\t(2) (description)\n" +
                         "\n\tType ‘end’ to finish logging session and write log data to file.\n" +
                         "\nEx:\n" +
-                        "\tstart (OR) start -n “My New Log” (OR) start -t 7:40 (OR) start -n DifferentTimeLog -t 7:30\n" +
+                        "\tstart (OR) start -n “My New Log” (OR) start -t 7:40 (OR) start -n DifferentTimeLog -t 7:30:00\n" +
                         "\t...\n" +
                         "\tevent\n" +
                         "\tHello Easy Events!\n" +
@@ -144,15 +145,12 @@ public class EasyEventsIO {
     /**
      * Wrapper for System.out.print(str)
      */
-    public static void print(String msg) {
-        System.out.print(msg);
+    public static String prompt(String msg) {
+        return prompter.prompt(msg);
     }
 
-    /**
-     * Wrapper for System.out.println(str)
-     */
-    public static void println(String msg) {
-        System.out.println(msg);
+    public static String prompt(String msg, String pattern, String retryMsg) {
+        return prompter.prompt(msg, pattern, retryMsg);
     }
 
     // ACCESSOR METHODS
