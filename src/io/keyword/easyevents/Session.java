@@ -1,7 +1,6 @@
 package io.keyword.easyevents;
 
-import i.keyword.easyevents.util.EasyEventsHelper;
-import i.keyword.easyevents.util.EasyEventsIO;
+import io.keyword.easyevents.util.EasyEventsIO;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -32,7 +31,7 @@ public class Session {
         return instance;
     }
 
-    public void startSession() {
+    /*public void startSession() {
         eventslog = EventLog.getInstance();
         eventslog.setInitialTime(LocalTime.now());
         this.setSessionName("EasyEvents_" + LocalDate.now().toString());
@@ -54,7 +53,7 @@ public class Session {
         this.startSession();
         eventslog.setInitialTime( EasyEventsHelper.localTimeFromString(time)); // Convert String to localTime
         this.setSessionName(sessionName);
-    }
+    }*/
 
     public void createEvent(String sessionName){
 
@@ -82,9 +81,9 @@ public class Session {
 
 
     // HELPER METHODS
-    private void start(){
+   /* private void start(){
         EasyEventsIO.println("Session event logging has started at " + eventslog.getInitialTime().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
-    }
+    }*/
 
     // OVERRIDES
 

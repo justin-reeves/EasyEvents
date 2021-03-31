@@ -12,9 +12,9 @@ public class SessionTest {
     public void setUp() {
     }
 
-    @Test
+    /*@Test
     public void testStartSession_withNoArgs() {
         Session session = Session.getInstance();
         session.startSession();
-    }
+    }*/
 }
