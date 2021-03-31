@@ -5,6 +5,7 @@ import io.keyword.easyevents.util.EasyEventsHelper;
 import java.time.DateTimeException;
 import java.time.Duration;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -92,9 +93,9 @@ class EventLog {
      */
     public void addEventOffset(LocalTime timeStamp, String description) {
         if(timeStamp.isBefore(this.initialTime)){
-            throw new EventConstructorInvalidInputException(String.format("Event timestamp %s is before the initial timestamp %s. Please try again!", timeStamp, this.initialTime));
+            throw new EventConstructorInvalidInputException(String.format("Event timestamp %s is before the initial timestamp %s. Please try again!", timeStamp, this.initialTime.format(DateTimeFormatter.ofPattern("HH:mm:ss"))));
         } else if(timeStamp.isAfter(LocalTime.now())){
-            throw new EventConstructorInvalidInputException(String.format("Event timestamp %s is after the current local time %s. Please try again!", timeStamp, LocalTime.now()));
+            throw new EventConstructorInvalidInputException(String.format("Event timestamp %s is after the current local time %s. Please try again!", timeStamp, LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"))));
         }
         Event event = this.createEvent(this.timeFromDuration(this.getDuration(initialTime, timeStamp)), description);
         this.syncTreeSet.add(event);
