@@ -5,8 +5,6 @@ import io.keyword.easyevents.Session;
 import io.keyword.easyevents.SessionFactory;
 import io.keyword.easyevents.util.EasyEventsIO;
 
-import java.time.LocalTime;
-
 /**
  * Class Description
  * <p>
@@ -19,16 +17,15 @@ class EasyEventsClient {
         EasyEventsIO.displayIntro();
         Session session = null;
 
-        while (session == null){
+        while (session == null) {
             try {
                 String startCommand = EasyEventsIO.promptStart();
                 session = SessionFactory.getSession(startCommand);
-            }catch (EventConstructorInvalidInputException e){
+            } catch (EventConstructorInvalidInputException e) {
                 System.out.println(e.getMessage());
             }
         }
 
         session.execute();
     }
-
 }

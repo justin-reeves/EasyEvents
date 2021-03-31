@@ -2,7 +2,6 @@ package io.keyword.easyevents;
 
 import io.keyword.easyevents.util.EasyEventsHelper;
 
-import java.time.DateTimeException;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -21,8 +20,8 @@ import java.util.stream.Collectors;
 class EventLog {
 
     // FIELDS
-    private NavigableSet<Event> events = new TreeSet<>(); // store all events; make it navigable
-    private NavigableSet<Event> syncTreeSet = Collections.synchronizedNavigableSet(events); // for client - server version app
+    private Set<Event> events = new TreeSet<>(); // store all events; make it navigable
+    private Set<Event> syncTreeSet = Collections.synchronizedSet(events); // for client - server version app
 
     private static EventLog eventLog = new EventLog();
 
@@ -44,12 +43,12 @@ class EventLog {
      * @param initialTime
      */
     public void start(LocalTime initialTime) {
-        if(initialTime.isAfter(LocalTime.now())){
+        if (initialTime.isAfter(LocalTime.now())) {
             throw new EventConstructorInvalidInputException(String.format("Session initial time %s is after the current local time %s. Please try again!"
-                    ,initialTime.format(DateTimeFormatter.ofPattern("HH:mm:ss"))
-                    ,LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"))));
+                    , initialTime.format(DateTimeFormatter.ofPattern("HH:mm:ss"))
+                    , LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"))));
         }
-        this.initialTime = initialTime;
+        this.setInitialTime(initialTime);
         this.addEventNoOffset(LocalTime.of(0, 0, 0), "Initial Event - Session starts;");
     }
 
@@ -72,16 +71,17 @@ class EventLog {
 
     public Event getFirstEvent() {
         this.assignEventId();
-        return this.syncTreeSet.first();
+        return ((TreeSet<Event>) this.syncTreeSet).first();
     }
 
     public Event getLastEvent() {
         this.assignEventId();
-        return this.syncTreeSet.last();
+        return ((TreeSet<Event>) this.syncTreeSet).last();
     }
 
     /**
      * this allows the user to input specific time elapsed from initial time
+     *
      * @param timeStamp
      * @param description
      */
@@ -97,20 +97,13 @@ class EventLog {
      * @param description event description
      */
     public void addEventOffset(LocalTime timeStamp, String description) {
-        if(timeStamp.isBefore(this.initialTime)){
+        if (timeStamp.isBefore(this.initialTime)) {
             throw new EventConstructorInvalidInputException(String.format("Event timestamp %s is before the initial timestamp %s. Please try again!", timeStamp, this.initialTime.format(DateTimeFormatter.ofPattern("HH:mm:ss"))));
-        } else if(timeStamp.isAfter(LocalTime.now())){
+        } else if (timeStamp.isAfter(LocalTime.now())) {
             throw new EventConstructorInvalidInputException(String.format("Event timestamp %s is after the current local time %s. Please try again!", timeStamp, LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"))));
         }
         Event event = this.createEvent(this.timeFromDuration(this.getDuration(initialTime, timeStamp)), description);
         this.syncTreeSet.add(event);
-    }
-
-    /**
-     * display events in ascending order
-     */
-    public void dumpEvents() {
-        this.getAllEvents().stream().forEach(System.out::println);
     }
 
     /**
@@ -136,7 +129,19 @@ class EventLog {
 
     public Collection<Event> getAllEvents() {
         this.assignEventId();
-        return this.events;
+        return this.syncTreeSet;
+    }
+
+    /**
+     * display events in ascending order
+     */
+    public void dumpEvents() {
+        this.getAllEvents().stream().forEach(System.out::println);
+    }
+
+    void clearEvents() {
+        this.events = new TreeSet<>();
+        syncTreeSet = Collections.synchronizedSet(events);
     }
 
     /**
@@ -150,19 +155,18 @@ class EventLog {
     }
 
     // ASSESSOR METHODS
+    public LocalTime getInitialTime() {
+        return initialTime;
+    }
 
     /**
      * if offset exist
      *
      * @param time
      */
-    public void setInitialTime(LocalTime time) {
+    private void setInitialTime(LocalTime time) {
         this.setOffset(time);
         this.initialTime = time;
-    }
-
-    public LocalTime getInitialTime() {
-        return initialTime;
     }
 
     // HELPER METHODS
@@ -173,10 +177,6 @@ class EventLog {
         }
     }
 
-    private long getOffset() {
-        return this.offset;
-    }
-
     /**
      * calculate duration between two events
      *
@@ -184,35 +184,27 @@ class EventLog {
      * @param event2
      * @return a Duration object - time-based amount of time
      */
-    public Duration getDuration(Event event1, Event event2) {
-        return Duration.between(event1.getEventTimeStamp(), event2.getEventTimeStamp());
-    }
-
-    public Duration getDuration(LocalTime event1, LocalTime event2) {
+    private Duration getDuration(LocalTime event1, LocalTime event2) {
         return Duration.between(event1, event2);
     }
 
-    public String timeFromDuration(Duration duration) {
+    private String timeFromDuration(Duration duration) {
         return String.format("%s:%s:%s", duration.toHoursPart(), duration.toMinutesPart(), duration.toSecondsPart());
     }
 
+    /**
+     * create an new event then return this event instance
+     *
+     * @param timeStamp   current local time; time elapsed will be calculated
+     * @param description event description
+     * @return
+     */
     private Event createEvent(String timeStamp, String description) {
         return new Event(timeStamp, description);
     }
 
     private Event createEvent(LocalTime timeStamp, String description) {
         return new Event(timeStamp, description);
-    }
-
-    /**
-     * allows user creating an event with only time
-     * then edit description later
-     *
-     * @param timeStamp
-     * @return
-     */
-    private Event createEvent(LocalTime timeStamp) {
-        return new Event(timeStamp, "default");
     }
 
     /**
@@ -224,10 +216,5 @@ class EventLog {
             Event e = iterator.next();
             e.setId(i);
         }
-    }
-
-    void clearEvents() {
-        this.events = new TreeSet<>();
-        syncTreeSet = Collections.synchronizedNavigableSet(events);
     }
 }
