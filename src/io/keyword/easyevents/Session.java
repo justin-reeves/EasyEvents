@@ -31,15 +31,15 @@ public class Session {
 
 
     public static Session getInstance() {
-        eventslog = EventLog.getInstance();
-        eventslog.start(LocalTime.now());
+        eventLog = EventLog.getInstance();
+        eventLog.start(LocalTime.now());
         instance.setSessionName("EasyEvents_" + LocalDate.now().toString());
         return instance;
     }
 
     public static Session getInstance(LocalTime time) {
         Session s = getInstance();
-        eventslog.start(time);
+        eventLog.start(time);
         return s;
     }
 
@@ -51,14 +51,14 @@ public class Session {
 
     public static Session getInstance(String sessionName, LocalTime time) {
         Session s = getInstance();
-        eventslog.start(time);
+        eventLog.start(time);
         s.setSessionName(sessionName);
         return s;
 
     }
 
     public void start() {
-        EasyEventsIO.info("Session event logging has started at " + eventslog.getInitialTime().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
+        EasyEventsIO.info("Session event logging has started at " + eventLog.getInitialTime().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
         logEvents();
     }
 
@@ -114,7 +114,7 @@ public class Session {
             time = EasyEventsHelper.localTimeFromString(input.split(" ")[2]);
         }
 
-        eventLog.addEvent(time, description);
+        eventLog.addEventOffset(time, description);
     }
 
 

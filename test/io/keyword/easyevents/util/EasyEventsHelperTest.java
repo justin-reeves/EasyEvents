@@ -1,4 +1,4 @@
-package i.keyword.easyevents.util;
+package io.keyword.easyevents.util;
 
 import org.junit.Test;
 

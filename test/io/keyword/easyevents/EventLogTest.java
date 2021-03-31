@@ -1,24 +1,14 @@
 package io.keyword.easyevents;
 
-import i.keyword.easyevents.util.EasyEventsHelper;
-import jdk.swing.interop.SwingInterOpUtils;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.*;
-import java.time.format.DateTimeFormatter;
+import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Objects;
-
 
 import static org.junit.Assert.*;
 
@@ -31,34 +21,34 @@ public class EventLogTest {
     }
 
     @After
-    public void clean(){
+    public void clean() {
         log.clearEvents();
     }
 
     @Test
-    public void addEvent_theEventsSortedAscendingOrder(){
+    public void addEvent_theEventsSortedAscendingOrder() {
         loadEvents();
         log.dumpEvents();
         int index = 0;
-        for(Event e : log.getAllEvents()){
-            assertEquals(e.getDescription(), "e"+(index++));
+        for (Event e : log.getAllEvents()) {
+            assertEquals(e.getDescription(), "e" + (index++));
         }
     }
 
     @Test(expected = DateTimeParseException.class)
-    public void addEvent_invalidTimestampFormat_throwsException(){
+    public void addEvent_invalidTimestampFormat_throwsException() {
         // correct input time format "01:01:01"
-        log.addEventNoOffset(LocalTime.parse("1:1:1"),"description");
+        log.addEventNoOffset(LocalTime.parse("1:1:1"), "description");
     }
 
     @Test(expected = EventConstructorInvalidInputException.class)
-    public void addEvent_invalidDescription_throwsException(){
+    public void addEvent_invalidDescription_throwsException() {
         // correct input time format "01:01:01"
-        log.addEventNoOffset(LocalTime.parse("01:01:01"),null);
+        log.addEventNoOffset(LocalTime.parse("01:01:01"), null);
     }
 
     @Test
-    public void start_initialEventIsAdded(){
+    public void start_initialEventIsAdded() {
         log.start("11:11:11");
         assertTrue(log.getInitialTime().toString().equals("11:11:11"));
         assertTrue(log.getFirstEvent().getDescription().equals("Initial Event - Session starts;"));
@@ -66,7 +56,7 @@ public class EventLogTest {
     }
 
     @Test
-    public void end_lastEventIsAdded(){
+    public void end_lastEventIsAdded() {
         loadEvents();
         log.end("17:00:00");
         System.out.println(log.getLastEvent());
@@ -75,7 +65,7 @@ public class EventLogTest {
     }
 
     @Test
-    public void search_returnDesiredList(){
+    public void search_returnDesiredList() {
         loadEvents();
         List<Event> list = log.searchEvent("e");
         assertTrue(list.size() == 6);
@@ -91,7 +81,7 @@ public class EventLogTest {
     }
 
     @Test
-    public void search_returnDesiredEvent(){
+    public void search_returnDesiredEvent() {
         loadEvents();
         Event event = log.searchEvent(1);
         assertTrue(event.getDescription().equals("e1"));
@@ -103,7 +93,7 @@ public class EventLogTest {
     }
 
     @Test
-    public void delete_returnDesiredSize(){
+    public void delete_returnDesiredSize() {
         loadEvents();
         log.deleteEvent(1);
         assertTrue(log.getAllEvents().size() == 5);
@@ -114,12 +104,12 @@ public class EventLogTest {
         //log.dumpEvents();
     }
 
-    private void loadEvents(){
-        log.addEventNoOffset(LocalTime.parse("11:00:00"),"e4");
+    private void loadEvents() {
+        log.addEventNoOffset(LocalTime.parse("11:00:00"), "e4");
         log.addEventNoOffset(LocalTime.parse("10:00:00"), "e3");
-        log.addEventNoOffset(LocalTime.parse("01:00:00"),"e1");
+        log.addEventNoOffset(LocalTime.parse("01:00:00"), "e1");
         log.addEventNoOffset(LocalTime.parse("15:00:00"), "e6");
-        log.addEventNoOffset(LocalTime.parse("13:00:00"),"e5");
+        log.addEventNoOffset(LocalTime.parse("13:00:00"), "e5");
         log.addEventNoOffset(LocalTime.parse("09:00:00"), "e2");
         log.addEventOffset(LocalTime.now(), "e0");
     }
