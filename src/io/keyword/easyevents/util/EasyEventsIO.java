@@ -2,7 +2,8 @@ package io.keyword.easyevents.util;
 
 import com.apps.util.Prompter;
 
-import java.util.*;
+import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Singleton Static Utility class that provides the IO functionality of EasyEvents
@@ -14,7 +15,6 @@ public class EasyEventsIO {
 
     // FIELDS
     private static Prompter prompter;
-    private static EasyEventsIO instance = new EasyEventsIO();
 
     // CONSTRUCTORS
 
@@ -27,6 +27,7 @@ public class EasyEventsIO {
 
     /**
      * Uses a <code>Prompter</code> to display desired message
+     *
      * @param msg The string to display to the client
      */
     public static void info(String msg) {
@@ -35,6 +36,7 @@ public class EasyEventsIO {
 
     /**
      * Uses a <code>Prompter</code> to wait for user input.
+     *
      * @return Returns the user's input String
      */
     public static String prompt(String msg) {
@@ -43,9 +45,10 @@ public class EasyEventsIO {
 
     /**
      * Uses a <code>Prompter</code> to wait for user input. User input must match provided 'pattern', or else
-     *  input is rejected and the user is presented a designated retry message and re-prompted.
-     * @param msg The prompt message to display to the user
-     * @param pattern The regex pattern to check user input against
+     * input is rejected and the user is presented a designated retry message and re-prompted.
+     *
+     * @param msg      The prompt message to display to the user
+     * @param pattern  The regex pattern to check user input against
      * @param retryMsg The retry message presented to user when input does not match 'pattern'
      * @return Returns the user's input String which matches the provided 'pattern'
      */
@@ -55,6 +58,7 @@ public class EasyEventsIO {
 
     /**
      * Convenience method which waits for the initial EasyEvents 'start' command.
+     *
      * @return Returns the String containing the 'start' command and any flags used
      */
     public static String promptStart() {
@@ -145,21 +149,32 @@ public class EasyEventsIO {
 
     /**
      * Displays, to the console, the closing messages of Easy Events,
-     * including the name of the file containing the logged output data.
+     * including the session stop time, number of events logged and
+     * name of the file containing the logged output data.
      *
-     * @param fileName The name of the file containing logged output data
-     *                 including extension, ex. "outputFile.txt"
+     * @param endTime         The time that the session was ended.
+     * @param numEventsLogged The number of events logged during the session, including the start & end events
+     * @param fileName        The name of the file containing logged output data
+     *                        including extension, ex. "outputFile.txt".
      */
-    public static void displayEnd(String endTime, int eventsLogged, String fileName) {
-        System.out.printf(
-                "Session event logging ended at %s.\nLogged %d events to file '%s'\n",
-                endTime, eventsLogged, fileName);
+    public static void displayEnd(String endTime, int numEventsLogged, String fileName) {
+        info(String.format(
+                "Session event logging ended at %s.\n" +
+                        "Logged %d events to file '%s'\n\n" +
+                        "Thank you for using Easy Events! Goodbye.",
+                endTime, numEventsLogged, fileName));
+
+        try {
+            TimeUnit.SECONDS.sleep(3);
+        } catch (InterruptedException ignored) {
+        }
     }
 
     // ACCESSOR METHODS
 
     /**
      * Allows for setting this IO handler's input stream.
+     *
      * @param scanner The Scanner input stream to change to.
      */
     public static void setInputStream(Scanner scanner) {

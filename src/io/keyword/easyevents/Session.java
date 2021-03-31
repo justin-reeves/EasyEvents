@@ -6,7 +6,6 @@ import io.keyword.easyevents.util.EasyEventsIO;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -31,14 +30,14 @@ public class Session {
     // BUSINESS METHODS
 
 
-    public static Session getInstance() throws EventConstructorInvalidInputException{
+    public static Session getInstance() throws EventConstructorInvalidInputException {
         eventLog = EventLog.getInstance();
         eventLog.start(LocalTime.now());
         instance.setSessionName("EasyEvents_" + LocalDate.now().toString());
         return instance;
     }
 
-    public static Session getInstance(LocalTime time) throws EventConstructorInvalidInputException{
+    public static Session getInstance(LocalTime time) throws EventConstructorInvalidInputException {
         Session s = getInstance();
         eventLog.start(time);
         return s;
@@ -131,27 +130,31 @@ public class Session {
 
 
     public void endSession() {
-        eventLog.end(LocalTime.now());
-        EasyEventsIO.info(String.format("\nSession event logging was stopped at %s\n",
-                EasyEventsHelper.localtimeToFormattedString(LocalTime.now())));
+        LocalTime endTime = LocalTime.now();
+        eventLog.end(endTime);
 
-        writeToFile();
+        String filename = writeToFile();
+        int numEvents = eventLog.getAllEvents().size();
 
-        EasyEventsIO.info("Thank you for using Easy Events! Goodbye.");
-
-        try {
-            TimeUnit.SECONDS.sleep(3);
-        } catch (InterruptedException ignored) {
-        }
+        EasyEventsIO.displayEnd(
+                EasyEventsHelper.localtimeToFormattedString(endTime),
+                numEvents,
+                filename
+        );
     }
 
-    private void writeToFile() {
+    private String writeToFile() {
+        String filename = "";
         try {
-            SessionWriter.writeFile(getSessionName(), SessionWriter.FileType.TXT, eventLog.getAllEvents());
+            filename = SessionWriter.writeFile(
+                    getSessionName(),
+                    SessionWriter.FileType.TXT,
+                    eventLog.getAllEvents()).toString();
         } catch (IOException e) {
             System.out.println(e.toString());
         }
 
+        return filename;
     }
 
 

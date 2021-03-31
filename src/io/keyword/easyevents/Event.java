@@ -45,12 +45,12 @@ class Event implements Comparable<Event> {
         return timeStamp;
     }
 
-    String getFormattedEventTimeStamp(){
+    String getFormattedEventTimeStamp() {
         return EasyEventsHelper.localtimeToFormattedString(this.getEventTimeStamp());
     }
 
     void setEventTimeStamp(LocalTime timeStamp) {
-        if(Objects.isNull(timeStamp)){
+        if (Objects.isNull(timeStamp)) {
             throw new EventConstructorInvalidInputException("Input timestamp is NULL");
         } else {
             this.timeStamp = timeStamp;
@@ -58,7 +58,7 @@ class Event implements Comparable<Event> {
     }
 
     void setEventTimeStamp(String timeStamp) {
-        if(Objects.isNull(timeStamp)){
+        if (Objects.isNull(timeStamp)) {
             throw new EventConstructorInvalidInputException("Input timestamp is NULL");
         } else {
             this.timeStamp = EasyEventsHelper.localTimeFromString(timeStamp);
@@ -70,7 +70,7 @@ class Event implements Comparable<Event> {
     }
 
     void setDescription(String description) {
-        if(Objects.isNull(description)){
+        if (Objects.isNull(description)) {
             throw new EventConstructorInvalidInputException("Input description is NULL");
         } else {
             this.description = description;

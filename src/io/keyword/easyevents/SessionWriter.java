@@ -1,7 +1,6 @@
 package io.keyword.easyevents;
 
 
-
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -25,31 +24,34 @@ class SessionWriter {
     private static final SessionWriter writer = new SessionWriter();
 
     // CONSTRUCTORS
-    private SessionWriter(){}
+    private SessionWriter() {
+    }
 
-    public static SessionWriter getWriter(){
+    public static SessionWriter getWriter() {
         return writer;
     }
 
     // BUSINESS METHODS
+
     /**
      * write all recorded events in to a file
      * this file consists of:
      * header - session information
      * body - all events {Time Elapsed, Description}
+     *
      * @param fileName
      * @param type
      * @param collection
      * @throws IOException
      */
-    public static Path writeFile(String fileName, SessionWriter.FileType type , Collection<Event> collection) throws IOException {
+    public static Path writeFile(String fileName, SessionWriter.FileType type, Collection<Event> collection) throws IOException {
         Path path = Paths.get(System.getProperty("user.dir"), fileName + type.getFileType());
-        if(Files.exists(path)){
+        if (Files.exists(path)) {
             // add current time if file exists
             path = Paths.get(System.getProperty("user.dir"), fileName + LocalTime.now().format(DateTimeFormatter.ofPattern("_hh_mm_ss")) + type.getFileType());
         }
 
-        try(BufferedWriter writer = Files.newBufferedWriter(path)){
+        try (BufferedWriter writer = Files.newBufferedWriter(path)) {
             writer.write(getWriter().sessionHeader(fileName));
             collection.stream().forEach(e -> {
                 try {
@@ -67,12 +69,12 @@ class SessionWriter {
 
 
     // HELPER METHODS
-    private String sessionHeader(String sessionName){
+    private String sessionHeader(String sessionName) {
         return String.format("Easy Events Session: %s\nCreated on: %s\n\nEvents:\n\nTime Elapsed\t\tEvent Description\n------------\t\t------------\n"
-                ,sessionName, LocalDate.now());
+                , sessionName, LocalDate.now());
     }
 
-    private String sessionFooter(){
+    private String sessionFooter() {
         return "\n\n\nThanks for using Easy Events!";
     }
 
@@ -80,17 +82,18 @@ class SessionWriter {
     /**
      * provide three different available output file types
      */
-    public enum FileType{
+    public enum FileType {
         TXT(".txt"),
         CSV(".csv"),
         PDF(".pdf");
 
         private String type;
+
         FileType(String s) {
             this.type = s;
         }
 
-        public String getFileType(){
+        public String getFileType() {
             return this.type;
         }
     }

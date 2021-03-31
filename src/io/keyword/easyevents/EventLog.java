@@ -2,7 +2,6 @@ package io.keyword.easyevents;
 
 import io.keyword.easyevents.util.EasyEventsHelper;
 
-import java.time.DateTimeException;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -44,10 +43,10 @@ class EventLog {
      * @param initialTime
      */
     public void start(LocalTime initialTime) {
-        if(initialTime.isAfter(LocalTime.now())){
+        if (initialTime.isAfter(LocalTime.now())) {
             throw new EventConstructorInvalidInputException(String.format("Session initial time %s is after the current local time %s. Please try again!"
-                    ,initialTime.format(DateTimeFormatter.ofPattern("HH:mm:ss"))
-                    ,LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"))));
+                    , initialTime.format(DateTimeFormatter.ofPattern("HH:mm:ss"))
+                    , LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"))));
         }
         this.setInitialTime(initialTime);
         this.addEventNoOffset(LocalTime.of(0, 0, 0), "Initial Event - Session starts;");
@@ -82,6 +81,7 @@ class EventLog {
 
     /**
      * this allows the user to input specific time elapsed from initial time
+     *
      * @param timeStamp
      * @param description
      */
@@ -97,9 +97,9 @@ class EventLog {
      * @param description event description
      */
     public void addEventOffset(LocalTime timeStamp, String description) {
-        if(timeStamp.isBefore(this.initialTime)){
+        if (timeStamp.isBefore(this.initialTime)) {
             throw new EventConstructorInvalidInputException(String.format("Event timestamp %s is before the initial timestamp %s. Please try again!", timeStamp, this.initialTime.format(DateTimeFormatter.ofPattern("HH:mm:ss"))));
-        } else if(timeStamp.isAfter(LocalTime.now())){
+        } else if (timeStamp.isAfter(LocalTime.now())) {
             throw new EventConstructorInvalidInputException(String.format("Event timestamp %s is after the current local time %s. Please try again!", timeStamp, LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"))));
         }
         Event event = this.createEvent(this.timeFromDuration(this.getDuration(initialTime, timeStamp)), description);
@@ -143,6 +143,7 @@ class EventLog {
         this.events = new TreeSet<>();
         syncTreeSet = Collections.synchronizedSet(events);
     }
+
     /**
      * remove an event from the event collection if that event is present
      *
@@ -160,6 +161,7 @@ class EventLog {
 
     /**
      * if offset exist
+     *
      * @param time
      */
     private void setInitialTime(LocalTime time) {
@@ -192,7 +194,8 @@ class EventLog {
 
     /**
      * create an new event then return this event instance
-     * @param timeStamp current local time; time elapsed will be calculated
+     *
+     * @param timeStamp   current local time; time elapsed will be calculated
      * @param description event description
      * @return
      */
