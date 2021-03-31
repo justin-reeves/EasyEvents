@@ -44,6 +44,11 @@ class EventLog {
      * @param initialTime
      */
     public void start(LocalTime initialTime) {
+        if(initialTime.isAfter(LocalTime.now())){
+            throw new EventConstructorInvalidInputException(String.format("Session initial time %s is after the current local time %s. Please try again!"
+                    ,initialTime.format(DateTimeFormatter.ofPattern("HH:mm:ss"))
+                    ,LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"))));
+        }
         this.initialTime = initialTime;
         this.addEventNoOffset(LocalTime.of(0, 0, 0), "Initial Event - Session starts;");
     }
