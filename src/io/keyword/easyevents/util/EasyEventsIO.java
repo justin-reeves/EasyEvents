@@ -99,7 +99,7 @@ public class EasyEventsIO {
                         "\t\t\t(2) (description)\n" +
                         "\n\tType ‘end’ to finish logging session and write log data to file.\n" +
                         "\nEx:\n" +
-                        "\tstart (OR) start -n “My New Log” (OR) start -t 7:40 (OR) start -n DifferentTimeLog -t 7:30:00\n" +
+                        "\tstart (OR) start -n \"My New Log\" (OR) start -t 7:40 (OR) start -n DifferentTimeLog -t 7:30:00\n" +
                         "\t...\n" +
                         "\tevent\n" +
                         "\tHello Easy Events!\n" +
