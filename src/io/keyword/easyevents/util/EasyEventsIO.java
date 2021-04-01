@@ -91,13 +91,13 @@ public class EasyEventsIO {
         System.out.println(
                 "Welcome to Easy Events!\n" +
                         "-------------------------------------------------------------------------------------------------------\n" +
-                        "Type ‘help [command]’ at any time for usage statements.\n" +
-                        "\nType ‘start –n [Log name] -t [time: hh:mm:ss]’ to begin event logging.\n" +
+                        "Type 'help' [command] at any time for usage statements.\n" +
+                        "\nType 'start –n [Log name] -t [time: hh:mm:ss]' to begin event logging.\n" +
                         "\nDuring logging:\n" +
                         "\tCreate an event description by typing:\n" +
-                        "\t\t\t(1) ‘event [time: hh:mm:ss]’\n" +
+                        "\t\t\t(1) 'event [time: hh:mm:ss]'\n" +
                         "\t\t\t(2) (description)\n" +
-                        "\n\tType ‘end’ to finish logging session and write log data to file.\n" +
+                        "\n\tType 'end' to finish logging session and write log data to file.\n" +
                         "\nEx:\n" +
                         "\tstart (OR) start -n \"My New Log\" (OR) start -t 7:40 (OR) start -n DifferentTimeLog -t 7:30:00\n" +
                         "\t...\n" +
