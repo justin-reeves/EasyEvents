@@ -1,5 +1,7 @@
 package io.keyword.easyevents;
 
+import io.keyword.easyevents.util.EasyEventsHelper;
+
 import java.time.LocalTime;
 
 /**
@@ -27,16 +29,16 @@ public class SessionFactory {
      *                    '-n' or '-t' flags and their respective values
      * @return Returns a Session with values set respective to flag usage.
      */
-    public static Session getSession(String startString) {
+    public static Session getSession(String startString) throws EventConstructorInvalidInputException {
         boolean commandHasNameFlag = startString.contains(" -n ");
         boolean commandHasTimeFlag = startString.contains(" -t ");
 
-        Session session = null;
+        Session session;
 
         if (commandHasTimeFlag) {
             int timeIdx = startString.indexOf("-t") + 3; // + 3 moves idx to first "h" for a flag "-t hh:mm:ss"
             String timeString = startString.substring(timeIdx, timeIdx + "hh:mm:ss".length());
-            LocalTime time = LocalTime.parse(timeString);
+            LocalTime time = EasyEventsHelper.localTimeFromString(timeString);
 
             session = Session.getInstance(time);
         } else {

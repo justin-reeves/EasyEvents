@@ -1,10 +1,12 @@
 package io.keyword.easyevents;
 
 
+import io.keyword.easyevents.util.EasyEventsHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.time.Duration;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
 import java.util.List;
@@ -28,8 +30,8 @@ public class EventLogTest {
     @Test
     public void addEvent_theEventsSortedAscendingOrder() {
         loadEvents();
-        log.dumpEvents();
-        int index = 0;
+        //log.dumpEvents();
+        int index = 1;
         for (Event e : log.getAllEvents()) {
             assertEquals(e.getDescription(), "e" + (index++));
         }
@@ -48,60 +50,83 @@ public class EventLogTest {
     }
 
     @Test
-    public void start_initialEventIsAdded() {
+    public void start_initialEventIsAddedManually() {
         log.start("11:11:11");
-        assertTrue(log.getInitialTime().toString().equals("11:11:11"));
-        assertTrue(log.getFirstEvent().getDescription().equals("Initial Event - Session starts;"));
-        assertTrue(log.getAllEvents().size() == 1);
+        assertEquals("11:11:11", log.getInitialTime().toString());
+        assertEquals("Initial Event - Session starts;", log.getFirstEvent().getDescription());
+        assertEquals(1, log.getAllEvents().size());
     }
 
     @Test
     public void end_lastEventIsAdded() {
         loadEvents();
         log.end("17:00:00");
-        System.out.println(log.getLastEvent());
-        assertTrue(log.getLastEvent().getFormattedEventTimeStamp().equals("17:00:00"));
-        assertTrue(log.getLastEvent().getDescription().equals("Last Event - Session ends;"));
+        assertEquals("17:00:00", log.getLastEvent().getFormattedEventTimeStamp());
+        assertEquals("Last Event - Session ends;", log.getLastEvent().getDescription());
     }
 
     @Test
     public void search_returnDesiredList() {
         loadEvents();
         List<Event> list = log.searchEvent("e");
-        assertTrue(list.size() == 6);
+        assertEquals(6, list.size());
 
         list = log.searchEvent("3");
-        assertTrue(list.size() == 1);
+        assertEquals(1, list.size());
 
         list = log.searchEvent("not");
-        assertTrue(list.size() == 0);
+        assertEquals(0, list.size());
 
         list = log.searchEvent(null);
-        assertTrue(list.size() == 0);
+        assertEquals(0, list.size());
     }
 
     @Test
     public void search_returnDesiredEvent() {
         loadEvents();
         Event event = log.searchEvent(1);
-        assertTrue(event.getDescription().equals("e1"));
+        assertEquals("e1", event.getDescription());
         event = log.searchEvent(6);
-        assertTrue(event.getDescription().equals("e6"));
+        assertEquals("e6", event.getDescription());
 
         event = log.searchEvent(-1); // no -1 id exist
         assertTrue(Objects.isNull(event));
     }
 
     @Test
-    public void delete_returnDesiredSize() {
+    public void delete_returnDesiredSize_deletedIdStillThereButDeletedEventGone() {
         loadEvents();
-        log.deleteEvent(1);
-        assertTrue(log.getAllEvents().size() == 5);
+        log.deleteEvent(2);
+        assertEquals(5, log.getAllEvents().size());
         Event event = log.searchEvent(1);
         assertFalse(Objects.isNull(event)); // assigned event id again, so id 1 still there
-        List<Event> list = log.searchEvent("e1"); // e1 is gone
-        assertTrue(list.size() == 0);
+        List<Event> list = log.searchEvent("e2"); // e2 is gone
+        assertEquals(0, list.size());
+    }
+
+    @Test
+    public void offsetEventWithStart_givenInitialTime_calculateTimeElapsed() {
+        log.start("08:08:08");
+        loadEvents_testInsertOffset();
+        // e0 is inserted with current local time
+        // so e0's time elapsed = LocalTime.now() - "08:08:08"
+        Event[] events = new Event[1]; // store e0
+        log.searchEvent("e0").toArray(events);
+        // calculate time elapsed
+        Duration duration = Duration.between(LocalTime.parse("08:08:08"), LocalTime.now());
+        String timeElapsed = String.format("%d:%d:%d", duration.toHoursPart(), duration.toMinutesPart(), duration.toSecondsPart());
+        assertEquals(EasyEventsHelper.localTimeFromString(timeElapsed), events[0].getEventTimeStamp());
         //log.dumpEvents();
+    }
+
+    private void loadEvents_testInsertOffset() {
+        log.addEventNoOffset(LocalTime.parse("11:00:00"), "e4");
+        log.addEventNoOffset(LocalTime.parse("10:00:00"), "e3");
+        log.addEventNoOffset(LocalTime.parse("01:00:00"), "e1");
+        log.addEventNoOffset(LocalTime.parse("15:00:00"), "e6");
+        log.addEventNoOffset(LocalTime.parse("13:00:00"), "e5");
+        log.addEventNoOffset(LocalTime.parse("09:00:00"), "e2");
+        log.addEventOffset(LocalTime.now(), "e0");
     }
 
     private void loadEvents() {
@@ -111,6 +136,5 @@ public class EventLogTest {
         log.addEventNoOffset(LocalTime.parse("15:00:00"), "e6");
         log.addEventNoOffset(LocalTime.parse("13:00:00"), "e5");
         log.addEventNoOffset(LocalTime.parse("09:00:00"), "e2");
-        log.addEventOffset(LocalTime.now(), "e0");
     }
 }

@@ -4,33 +4,22 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.time.LocalTime;
 
-public class SessionWriterTest {
-    private SessionWriter writer = SessionWriter.getWriter();
-    private EventLog log = EventLog.getInstance();
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 
+
+public class SessionWriterTest {
+    private static EventLog log;
 
     @Before
     public void setUp() {
-    }
-
-    @Test
-    public void random() throws IOException {
-        loadEvents();
-        // only txt file now
-        SessionWriter.writeFile("name", SessionWriter.FileType.TXT, log.getAllEvents());
-        //SessionWriter.writeFile("name", SessionWriter.FileType.CSV, log.getAllEvents());
-
-    }
-
-    @Test
-    public void writeFile_generateDifferentFile_whenFileExist() {
-        loadEvents();
-        //SessionWriter.writeFile("name", EasyEventsHelper.FileType.TEXT, log.getAllEvents());
-    }
-
-    private void loadEvents() {
+        log = EventLog.getInstance();
         log.addEventNoOffset(LocalTime.parse("11:00:00"), "e4");
         log.addEventNoOffset(LocalTime.parse("10:00:00"), "e3");
         log.addEventNoOffset(LocalTime.parse("01:00:00"), "e1");
@@ -39,4 +28,30 @@ public class SessionWriterTest {
         log.addEventNoOffset(LocalTime.parse("09:00:00"), "e2");
     }
 
+    @Test
+    public void writeFile_emptyFileName_generateDefaultName() throws IOException, InterruptedException {
+        SessionWriter.writeFile("", SessionWriter.FileType.TXT, log.getAllEvents());
+        Path path = Paths.get(System.getProperty("user.dir"), "Session_" + LocalDate.now().toString() + ".txt");
+
+        Thread.sleep(1000); // give writer time to generate file
+        assertTrue(Files.exists(path));
+    }
+
+    @Test
+    public void writeFile_ullFileName_generateDefaultName() throws IOException, InterruptedException {
+        SessionWriter.writeFile(null, SessionWriter.FileType.TXT, log.getAllEvents());
+        Path path = Paths.get(System.getProperty("user.dir"), "Session_" + LocalDate.now().toString() + ".txt");
+
+        Thread.sleep(1000); // give writer time to generate file
+        assertTrue(Files.exists(path));
+    }
+
+    @Test
+    public void writeFile_generateDifferentFile_whenFileExist() throws IOException, InterruptedException {
+        Path path1 = SessionWriter.writeFile("Session", SessionWriter.FileType.TXT, log.getAllEvents());
+        Path path2 = SessionWriter.writeFile("Session", SessionWriter.FileType.TXT, log.getAllEvents());
+
+        Thread.sleep(1000); // give writer time to generate file
+        assertNotEquals(path1, path2); // given same file name but generate two different files
+    }
 }

@@ -2,7 +2,8 @@ package io.keyword.easyevents.util;
 
 import com.apps.util.Prompter;
 
-import java.util.*;
+import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Singleton Static Utility class that provides the IO functionality of EasyEvents
@@ -13,20 +14,19 @@ import java.util.*;
 public class EasyEventsIO {
 
     // FIELDS
-    private static Prompter prompter;
-    private static EasyEventsIO instance = new EasyEventsIO();
+    private static Prompter prompter = new Prompter(new Scanner(System.in));
 
     // CONSTRUCTORS
 
     private EasyEventsIO() {
         // All static utility class. Prevent instantiation.
-        prompter = new Prompter(new Scanner(System.in));
     }
 
     // BUSINESS METHODS
 
     /**
      * Uses a <code>Prompter</code> to display desired message
+     *
      * @param msg The string to display to the client
      */
     public static void info(String msg) {
@@ -35,6 +35,7 @@ public class EasyEventsIO {
 
     /**
      * Uses a <code>Prompter</code> to wait for user input.
+     *
      * @return Returns the user's input String
      */
     public static String prompt(String msg) {
@@ -43,9 +44,10 @@ public class EasyEventsIO {
 
     /**
      * Uses a <code>Prompter</code> to wait for user input. User input must match provided 'pattern', or else
-     *  input is rejected and the user is presented a designated retry message and re-prompted.
-     * @param msg The prompt message to display to the user
-     * @param pattern The regex pattern to check user input against
+     * input is rejected and the user is presented a designated retry message and re-prompted.
+     *
+     * @param msg      The prompt message to display to the user
+     * @param pattern  The regex pattern to check user input against
      * @param retryMsg The retry message presented to user when input does not match 'pattern'
      * @return Returns the user's input String which matches the provided 'pattern'
      */
@@ -55,6 +57,7 @@ public class EasyEventsIO {
 
     /**
      * Convenience method which waits for the initial EasyEvents 'start' command.
+     *
      * @return Returns the String containing the 'start' command and any flags used
      */
     public static String promptStart() {
@@ -63,17 +66,17 @@ public class EasyEventsIO {
         String timeCommandRegex = "-t ([01][\\d]|2[0-3]):[0-5][\\d]:[0-5][\\d]";
 
         while (!result.startsWith("start")) {
-            result = EasyEventsIO.prompt(
+            result = prompt(
                     "Use 'start' command to begin event logging, or type 'help' for usage\n",
                     "^start *$|" +
                             "^start +" + nameCommandRegex + " *$|" +
                             "^start +" + timeCommandRegex + " *$|" +
                             "^start +" + nameCommandRegex + " +" + timeCommandRegex + " *$|" +
                             "^start +" + timeCommandRegex + " +" + nameCommandRegex + " *$|" +
-                            "help .*",
+                            "help *.*",
                     "Please type 'start' or 'help' with or without their respective OPTIONAL tags. See 'help' for details\n");
             if (result.startsWith("help")) {
-                EasyEventsIO.displayUsage(result);
+                displayUsage(result);
             }
         }
 
@@ -106,6 +109,16 @@ public class EasyEventsIO {
                         "\tend\n" +
                         "\t...\n" +
                         "-------------------------------------------------------------------------------------------------------");
+    }
+
+    /**
+     * Displays, to the console, the general information for the newly started session.
+     */
+    public static void displaySession(String sessionName, String startTime) {
+        info(String.format(
+                "Logging for session '%s' started at %s\n",
+                sessionName,
+                startTime));
     }
 
     /**
@@ -145,21 +158,32 @@ public class EasyEventsIO {
 
     /**
      * Displays, to the console, the closing messages of Easy Events,
-     * including the name of the file containing the logged output data.
+     * including the session stop time, number of events logged and
+     * name of the file containing the logged output data.
      *
-     * @param fileName The name of the file containing logged output data
-     *                 including extension, ex. "outputFile.txt"
+     * @param endTime         The time that the session was ended.
+     * @param numEventsLogged The number of events logged during the session, including the start & end events
+     * @param fileName        The name of the file containing logged output data
+     *                        including extension, ex. "outputFile.txt".
      */
-    public static void displayEnd(String endTime, int eventsLogged, String fileName) {
-        System.out.printf(
-                "Session event logging ended at %s.\nLogged %d events to file '%s'\n",
-                endTime, eventsLogged, fileName);
+    public static void displayEnd(String endTime, int numEventsLogged, String fileName) {
+        info(String.format(
+                "Session event logging ended at %s.\n" +
+                        "Logged %d events to file '%s'\n\n" +
+                        "Thank you for using Easy Events! Goodbye.",
+                endTime, numEventsLogged, fileName));
+
+        try {
+            TimeUnit.SECONDS.sleep(3);
+        } catch (InterruptedException ignored) {
+        }
     }
 
     // ACCESSOR METHODS
 
     /**
      * Allows for setting this IO handler's input stream.
+     *
      * @param scanner The Scanner input stream to change to.
      */
     public static void setInputStream(Scanner scanner) {
@@ -179,7 +203,7 @@ public class EasyEventsIO {
                         "\t-n:\tA [session name] is required when using this flag.\n" +
                         "\t\tDesignates file name of session output file.\n" +
                         "\t\tFile name can only contain alphanumeric characters, underscore's '_',\n" +
-                        "\t\t   or spaces ' ' (if name is wrapped with double quotes, ex: \"name with spaces\"\n" +
+                        "\t\t   or spaces ' ' (if name is wrapped with double quotes, ex: \"name with spaces\")\n" +
                         "\t\tIf this flag is not used, output file name will be given a default name using the current date,\n" +
                         "\t\te.g. EasyEvent_03292021.txt\n" +
                         "\n\t-t:\tA [time: hh:mm:ss] is required when using this flag.\n" +

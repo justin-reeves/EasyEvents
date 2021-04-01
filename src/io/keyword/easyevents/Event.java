@@ -7,15 +7,17 @@ import java.util.Objects;
 
 /**
  * this class serves as a single Event storing a timestamp and description
+ * this class is coupled with EventLog
  * <p>
  * Created By: Justin Reeves, Pasang Sherpa, Xiaotian Wang (Xander)
  * Created On: 3/26/2021
  */
 class Event implements Comparable<Event> {
-    // FIELDS
+    //region FIELDS
     private LocalTime timeStamp; // time stamp in LocalTime format hh:mm:ss
     private String description; // note or event description
-    private int id; // the sequence of events ordered by time stamp; each session's first event id=1
+    private int id; // the sequence of events ordered by time stamp and description; id is assigned before output
+    // endregion
 
     //region CONSTRUCTOR
     Event() {
@@ -45,20 +47,37 @@ class Event implements Comparable<Event> {
         return timeStamp;
     }
 
-    String getFormattedEventTimeStamp(){
+    /**
+     * convert LocalTime to "HH:mm:ss" format
+     * e.g. from 11:00 to "00:11:00"
+     *
+     * @return "HH:mm:ss" formatted time
+     */
+    String getFormattedEventTimeStamp() {
         return EasyEventsHelper.localtimeToFormattedString(this.getEventTimeStamp());
     }
 
-    void setEventTimeStamp(LocalTime timeStamp) {
-        if(Objects.isNull(timeStamp)){
+    /**
+     * assign a LocalTime object to this Event
+     *
+     * @param timeStamp LocalTime object cannot be null
+     */
+    private void setEventTimeStamp(LocalTime timeStamp) {
+        if (Objects.isNull(timeStamp)) {
             throw new EventConstructorInvalidInputException("Input timestamp is NULL");
         } else {
             this.timeStamp = timeStamp;
         }
     }
 
-    void setEventTimeStamp(String timeStamp) {
-        if(Objects.isNull(timeStamp)){
+    /**
+     * convert input String localTime format to "HH:mm:ss" then assign its value
+     *
+     * @param timeStamp not null or invalid format
+     *                  e.g. "46:23:12" hour limit is 0 - 24
+     */
+    private void setEventTimeStamp(String timeStamp) {
+        if (Objects.isNull(timeStamp)) {
             throw new EventConstructorInvalidInputException("Input timestamp is NULL");
         } else {
             this.timeStamp = EasyEventsHelper.localTimeFromString(timeStamp);
@@ -69,8 +88,13 @@ class Event implements Comparable<Event> {
         return this.description;
     }
 
-    void setDescription(String description) {
-        if(Objects.isNull(description)){
+    /**
+     * assign description
+     *
+     * @param description string and can not be null
+     */
+    private void setDescription(String description) {
+        if (Objects.isNull(description)) {
             throw new EventConstructorInvalidInputException("Input description is NULL");
         } else {
             this.description = description;
@@ -81,17 +105,21 @@ class Event implements Comparable<Event> {
         return id;
     }
 
-    // default event id = 0; valid id range >= 1
+    /**
+     * valid id range integer from 1 to Integer.MAX; default event id = 0;
+     *
+     * @param id represent the sequence of events ranked by time stamp
+     */
     void setId(int id) {
         if (id < 0) {
-            throw new IllegalArgumentException("setId(): invalid input id");
+            throw new IllegalArgumentException("setId(): invalid input id; id is less than 0.");
         } else {
             this.id = id;
         }
     }
     //endregion
 
-    // OVERRIDES
+    //region OVERRIDES
     @Override
     public String toString() {
         return String.format("Event ID: %d; Event time stamp: %s; Event description: %s.", this.getId(), this.getFormattedEventTimeStamp(), this.getDescription());
@@ -100,10 +128,8 @@ class Event implements Comparable<Event> {
     @Override
     public boolean equals(Object obj) {
         if (!Objects.isNull(obj) && obj instanceof Event) {
-            if (((Event) obj).getFormattedEventTimeStamp().equals(this.getFormattedEventTimeStamp())
-                    && ((Event) obj).getDescription().equals(this.getDescription())) {
-                return true;
-            }
+            return ((Event) obj).getFormattedEventTimeStamp().equals(this.getFormattedEventTimeStamp())
+                    && ((Event) obj).getDescription().equals(this.getDescription());
         }
         return false;
     }
@@ -117,7 +143,7 @@ class Event implements Comparable<Event> {
     public int compareTo(Event other) {
         int result = 0;
         if (!Objects.isNull(other)) {
-            // compare time stamps first
+            // compare time stamps first then compare description
             result = this.getFormattedEventTimeStamp().compareTo(other.getFormattedEventTimeStamp());
             if (result == 0) {
                 // if time stamps are same, then compare description
@@ -126,5 +152,6 @@ class Event implements Comparable<Event> {
         }
         return result;
     }
+    //endregion
 
 }
