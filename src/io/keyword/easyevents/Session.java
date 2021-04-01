@@ -4,10 +4,8 @@ import io.keyword.easyevents.util.EasyEventsHelper;
 import io.keyword.easyevents.util.EasyEventsIO;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -16,61 +14,40 @@ import java.util.concurrent.TimeUnit;
  * Created By: Justin Reeves, Pasang Sherpa, Xiaotian Wang (Xander)
  * Created On: 3/26/2021
  */
-public class Session {
+public enum Session {
 
     // FIELDS
+    INSTANCE;
     private static EventLog eventLog;
     private String sessionName;
-    private static final Session instance = new Session();
 
 
     // CONSTRUCTORS
 
-    private Session() {
-    }
 
     // BUSINESS METHODS
-
-
-    public static Session getInstance() throws EventConstructorInvalidInputException{
-        eventLog = EventLog.getInstance();
-        eventLog.start(LocalTime.now());
-        instance.setSessionName("EasyEvents_" + LocalDate.now().toString());
-        return instance;
-    }
-
-    public static Session getInstance(LocalTime time) throws EventConstructorInvalidInputException{
-        Session s = getInstance();
-        eventLog.start(time);
-        return s;
-    }
-
-    public static Session getInstance(String sessionName) {
-        Session s = getInstance();
-        s.setSessionName(sessionName);
-        return s;
-    }
-
-    public static Session getInstance(String sessionName, LocalTime time) throws EventConstructorInvalidInputException {
-        Session s = getInstance();
-        eventLog.start(time);
-        s.setSessionName(sessionName);
-        return s;
-
-    }
-
     public void execute() {
-        EasyEventsIO.info(
-                String.format(
-                        "Logging for session '%s' started at %s\n",
-                        getSessionName(),
-                        EasyEventsHelper.localtimeToFormattedString(eventLog.getInitialTime())));
+        EasyEventsIO.displaySession(
+                getSessionName(),
+                EasyEventsHelper.localtimeToFormattedString(eventLog.getInitialTime()));
         logEvents();
         endSession();
     }
 
 
     // ACCESSOR METHODS
+    public static Session getInstance() throws EventConstructorInvalidInputException {
+        eventLog = EventLog.getInstance();
+        eventLog.start(LocalTime.now());
+        INSTANCE.setSessionName("EasyEvents_" + LocalDate.now().toString());
+        return INSTANCE;
+    }
+
+    public static Session getInstance(LocalTime time) throws EventConstructorInvalidInputException {
+        Session s = getInstance();
+        eventLog.start(time);
+        return s;
+    }
 
     public String getSessionName() {
         return sessionName;
@@ -80,11 +57,15 @@ public class Session {
         this.sessionName = sessionName;
     }
 
+    public LocalTime getInitialTime() {
+        return eventLog.getInitialTime();
+    }
+
 
     // HELPER METHODS
     private static void logEvents() {
         EasyEventsIO.info("You can now continuously enter events by using the 'event' command or\n" +
-                "typing 'end' to end your logging session. Type 'help' at anytime for usage information\n");
+                "typing 'end' to end your logging session. Type 'help' at anytime for usage information\n\n");
         String timeCommandRegex = "-t +([01][\\d]|2[0-3]):[0-5][\\d]:[0-5][\\d]";
 
         // while user has not confirmed to 'end' the session it will keep looping until user confirms the 'end'
@@ -114,12 +95,6 @@ public class Session {
         }
     }
 
-    private static boolean confirmEnd() {
-        return EasyEventsIO.prompt("Are you ready to end session (y/n)? ",
-                "[yYnN]",
-                "Your answer must be 'y', 'Y', 'n' or 'N'").matches("[yY]");
-    }
-
     private static void createEvent(String input, String description) throws EventConstructorInvalidInputException {
         LocalTime time = LocalTime.now();
 
@@ -130,30 +105,38 @@ public class Session {
         eventLog.addEventOffset(time, description);
     }
 
-
-    public void endSession() {
-        eventLog.end(LocalTime.now());
-        EasyEventsIO.info(String.format("\nSession event logging was stopped at %s\n",
-                EasyEventsHelper.localtimeToFormattedString(LocalTime.now())));
-
-        writeToFile();
-
-        EasyEventsIO.info("Thank you for using Easy Events! Goodbye.");
-
-        try {
-            TimeUnit.SECONDS.sleep(3);
-        } catch (InterruptedException ignored) {
-        }
+    private static boolean confirmEnd() {
+        return EasyEventsIO.prompt("Are you ready to end session (y/n)? ",
+                "[yYnN]",
+                "Your answer must be 'y', 'Y', 'n' or 'N'").matches("[yY]");
     }
 
-    private void writeToFile() {
+    private void endSession() {
+        LocalTime endTime = LocalTime.now();
+        eventLog.end(endTime);
+
+        String filename = writeToFile();
+        int numEvents = eventLog.getAllEvents().size();
+
+        EasyEventsIO.displayEnd(
+                EasyEventsHelper.localtimeToFormattedString(endTime),
+                numEvents,
+                filename
+        );
+    }
+
+    private String writeToFile() {
+        String filename = "";
         try {
-            Path p = SessionWriter.writeFile(getSessionName(), SessionWriter.FileType.TXT, eventLog.getAllEvents());
-            System.out.println(p);
+            filename = SessionWriter.writeFile(
+                    getSessionName(),
+                    SessionWriter.FileType.TXT,
+                    eventLog.getAllEvents()).toString();
         } catch (IOException e) {
             System.out.println(e.toString());
         }
 
+        return filename;
     }
 
 
