@@ -6,6 +6,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.regex.PatternSyntaxException;
 
+/**
+ * this class provides few static functions that helps on converting from String time to LocalTime or vice versa
+ * this helper functions ensure the time format consistency inside our application
+ */
 public class EasyEventsHelper {
 
     private EasyEventsHelper() {
@@ -13,8 +17,9 @@ public class EasyEventsHelper {
 
     /**
      * convert user input string to LocalTime
+     * e,g. "0:0:18" to "00:00:18", "01:01" to "01:01:00" instead of "00:01:01"
      *
-     * @param timeStamp input String "hh:mm:ss"
+     * @param timeStamp input String "HH:mm:ss"
      * @return Instant of current local time "HH:mm:ss"
      */
     public static LocalTime localTimeFromString(String timeStamp) {
@@ -27,9 +32,9 @@ public class EasyEventsHelper {
                 case 3:
                     return LocalTime.of(Integer.parseInt(timeParts[0]), Integer.parseInt(timeParts[1]), Integer.parseInt(timeParts[2]));
                 case 2:
-                    return LocalTime.of(0, Integer.parseInt(timeParts[0]), Integer.parseInt(timeParts[1]));
+                    return LocalTime.of(Integer.parseInt(timeParts[0]), Integer.parseInt(timeParts[1]), 0);
                 case 1:
-                    return LocalTime.of(0, 0, Integer.parseInt(timeParts[0]));
+                    return LocalTime.of(Integer.parseInt(timeParts[0]), 0, 0);
                 default:
                     throw new PatternSyntaxException("Invalid format timestamp: " + timeStamp, "HH:mm:ss", -1);
             }
@@ -43,7 +48,7 @@ public class EasyEventsHelper {
     }
 
     /**
-     * convert LocalTime to formatted string "hh:mm:ss"
+     * convert LocalTime to formatted string "HH:mm:ss"
      * e.g. 1:1:1 to "01:01:01" or 07:00 to "07:00:00"
      *
      * @param time user input LocalTime

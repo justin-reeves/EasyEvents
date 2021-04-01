@@ -9,6 +9,7 @@ import org.junit.Test;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
 
@@ -28,7 +29,7 @@ public class EventLogTest {
     }
 
     @Test
-    public void addEvent_theEventsSortedAscendingOrder() {
+    public void addEvent_theEventsSortedAscendingOrderByTimeStampAndDescription() {
         loadEvents();
         //log.dumpEvents();
         int index = 1;
@@ -47,6 +48,14 @@ public class EventLogTest {
     public void addEvent_invalidDescription_throwsException() {
         // correct input time format "01:01:01"
         log.addEventNoOffset(LocalTime.parse("01:01:01"), null);
+    }
+
+    //TODO: test this in specific time after current, this will throw exception
+    //@Test(expected = EventConstructorInvalidInputException.class)
+    @Test
+    public void addEvent_withSpecificTime_throwException_whenTimeAfterCurrent(){
+        log.start("08:00:00");
+        //log.addEventNoOffset(LocalTime.parse("10:00:00"), "InvalidTime");
     }
 
     @Test

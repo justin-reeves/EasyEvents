@@ -5,11 +5,12 @@ import io.keyword.easyevents.util.EasyEventsHelper;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * singleton class - one instance
+ * singleton class - one session has only one instance of EventLog
  * this class serves as a collector of events
  * it provide add, search, delete, output events and supported services
  * <p>
@@ -37,7 +38,8 @@ class EventLog {
     }
 
     /**
-     * start this EventLog by creating an initiate event
+     * start this EventLog
+     * by creating an initiate event and recording the initial time
      *
      * @param initialTime time when the eventLog is created
      */
@@ -76,6 +78,11 @@ class EventLog {
      * @param description event's description
      */
     public void addEventNoOffset(LocalTime timeStamp, String description) {
+        //TODO: for testing purpose comment out this part
+        /*LocalTime currentTime = this.getInitialTime().plus(timeStamp.toSecondOfDay(), ChronoUnit.SECONDS);
+        if (currentTime.isAfter(LocalTime.now())) {
+            throw new EventConstructorInvalidInputException(String.format("Event timestamp %s is  after the current local time %s. Please try again!", timeStamp, this.initialTime.format(DateTimeFormatter.ofPattern("HH:mm:ss"))));
+        }*/
         Event event = this.createEvent(timeStamp, description);
         this.syncTreeSet.add(event);
     }

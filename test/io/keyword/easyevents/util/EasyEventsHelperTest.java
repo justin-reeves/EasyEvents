@@ -23,6 +23,13 @@ public class EasyEventsHelperTest {
         assertEquals(time, formattedTime);
     }
 
+    @Test
+    public void localTimeFromString_convertTimeFormatFromHhMmtoHhMmSs() {
+        LocalTime formattedTime = EasyEventsHelper.localTimeFromString("18");
+        LocalTime time = LocalTime.of(18, 0, 0);
+        assertEquals(time, formattedTime);
+    }
+
     @Test(expected = PatternSyntaxException.class)
     public void localTimeFromString_throwPatternSyntaxException_splitMore() {
         EasyEventsHelper.localTimeFromString("0:0:0:0");
@@ -41,6 +48,7 @@ public class EasyEventsHelperTest {
     @Test
     public void localtimeToFormattedString_convertHmsToHhMmSs() {
         LocalTime time = LocalTime.of(3, 2);
+        assertEquals(time.toString(), "03:02");
         assertEquals(EasyEventsHelper.localtimeToFormattedString(time), "03:02:00");
     }
 
