@@ -14,27 +14,33 @@ import java.time.LocalTime;
  * Created By: Justin Reeves, Pasang Sherpa, Xiaotian Wang (Xander)
  * Created On: 3/26/2021
  */
-public class Session {
+public enum Session {
 
     // FIELDS
+    INSTANCE;
     private static EventLog eventLog;
     private String sessionName;
-    private static final Session instance = new Session();
 
 
     // CONSTRUCTORS
 
-    private Session() {
-    }
 
     // BUSINESS METHODS
+    public void execute() {
+        EasyEventsIO.displaySession(
+                getSessionName(),
+                EasyEventsHelper.localtimeToFormattedString(eventLog.getInitialTime()));
+        logEvents();
+        endSession();
+    }
 
 
+    // ACCESSOR METHODS
     public static Session getInstance() throws EventConstructorInvalidInputException {
         eventLog = EventLog.getInstance();
         eventLog.start(LocalTime.now());
-        instance.setSessionName("EasyEvents_" + LocalDate.now().toString());
-        return instance;
+        INSTANCE.setSessionName("EasyEvents_" + LocalDate.now().toString());
+        return INSTANCE;
     }
 
     public static Session getInstance(LocalTime time) throws EventConstructorInvalidInputException {
@@ -42,31 +48,6 @@ public class Session {
         eventLog.start(time);
         return s;
     }
-
-    public static Session getInstance(String sessionName) {
-        Session s = getInstance();
-        s.setSessionName(sessionName);
-        return s;
-    }
-
-    public static Session getInstance(String sessionName, LocalTime time) throws EventConstructorInvalidInputException {
-        Session s = getInstance();
-        eventLog.start(time);
-        s.setSessionName(sessionName);
-        return s;
-
-    }
-
-    public void execute() {
-        EasyEventsIO.displaySession(
-                        getSessionName(),
-                        EasyEventsHelper.localtimeToFormattedString(eventLog.getInitialTime()));
-        logEvents();
-        endSession();
-    }
-
-
-    // ACCESSOR METHODS
 
     public String getSessionName() {
         return sessionName;
@@ -114,12 +95,6 @@ public class Session {
         }
     }
 
-    private static boolean confirmEnd() {
-        return EasyEventsIO.prompt("Are you ready to end session (y/n)? ",
-                "[yYnN]",
-                "Your answer must be 'y', 'Y', 'n' or 'N'").matches("[yY]");
-    }
-
     private static void createEvent(String input, String description) throws EventConstructorInvalidInputException {
         LocalTime time = LocalTime.now();
 
@@ -130,8 +105,13 @@ public class Session {
         eventLog.addEventOffset(time, description);
     }
 
+    private static boolean confirmEnd() {
+        return EasyEventsIO.prompt("Are you ready to end session (y/n)? ",
+                "[yYnN]",
+                "Your answer must be 'y', 'Y', 'n' or 'N'").matches("[yY]");
+    }
 
-    public void endSession() {
+    private void endSession() {
         LocalTime endTime = LocalTime.now();
         eventLog.end(endTime);
 

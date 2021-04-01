@@ -17,24 +17,21 @@ import java.util.stream.Collectors;
  * Created By: Justin Reeves, Pasang Sherpa, Xiaotian Wang (Xander)
  * Created On: 3/26/2021
  */
-class EventLog {
+enum EventLog {
 
     // FIELDS
+    INSTANCE;
     private Set<Event> events = new TreeSet<>(); // store all events; make it navigable
     private Set<Event> syncTreeSet = Collections.synchronizedSet(events); // for client - server version app
-
-    private static EventLog eventLog = new EventLog();
-
     private LocalTime initialTime = LocalTime.now(); // current local time
     private long offset = 0;
 
-    // CONSTRUCTORS - singleton
-    private EventLog() {
-    }
+    // CONSTRUCTORS
+
 
     // BUSINESS METHODS
-    public static EventLog getInstance() {
-        return eventLog;
+    static EventLog getInstance() {
+        return INSTANCE;
     }
 
     /**
@@ -42,7 +39,7 @@ class EventLog {
      *
      * @param initialTime
      */
-    public void start(LocalTime initialTime) {
+    void start(LocalTime initialTime) {
         if (initialTime.isAfter(LocalTime.now())) {
             throw new EventConstructorInvalidInputException(String.format("Session initial time %s is after the current local time %s. Please try again!"
                     , initialTime.format(DateTimeFormatter.ofPattern("HH:mm:ss"))
@@ -52,7 +49,7 @@ class EventLog {
         this.addEventNoOffset(LocalTime.of(0, 0, 0), "Initial Event - Session starts;");
     }
 
-    public void start(String initialTime) {
+    void start(String initialTime) {
         this.start(EasyEventsHelper.localTimeFromString(initialTime));
     }
 
@@ -61,20 +58,20 @@ class EventLog {
      *
      * @param endTime
      */
-    public void end(LocalTime endTime) {
+    void end(LocalTime endTime) {
         this.addEventOffset(LocalTime.now(), "Last Event - Session ends;");
     }
 
-    public void end(String endTime) {
+    void end(String endTime) {
         this.addEventNoOffset(EasyEventsHelper.localTimeFromString(endTime), "Last Event - Session ends;");
     }
 
-    public Event getFirstEvent() {
+    Event getFirstEvent() {
         this.assignEventId();
         return ((TreeSet<Event>) this.syncTreeSet).first();
     }
 
-    public Event getLastEvent() {
+    Event getLastEvent() {
         this.assignEventId();
         return ((TreeSet<Event>) this.syncTreeSet).last();
     }
@@ -85,7 +82,7 @@ class EventLog {
      * @param timeStamp
      * @param description
      */
-    public void addEventNoOffset(LocalTime timeStamp, String description) {
+    void addEventNoOffset(LocalTime timeStamp, String description) {
         Event event = this.createEvent(timeStamp, description);
         this.syncTreeSet.add(event);
     }
@@ -96,7 +93,7 @@ class EventLog {
      * @param timeStamp   user provided LocalTime
      * @param description event description
      */
-    public void addEventOffset(LocalTime timeStamp, String description) {
+    void addEventOffset(LocalTime timeStamp, String description) {
         if (timeStamp.isBefore(this.initialTime)) {
             throw new EventConstructorInvalidInputException(String.format("Event timestamp %s is before the initial timestamp %s. Please try again!", timeStamp, this.initialTime.format(DateTimeFormatter.ofPattern("HH:mm:ss"))));
         } else if (timeStamp.isAfter(LocalTime.now())) {
@@ -112,7 +109,7 @@ class EventLog {
      * @param keyword can be any String
      * @return list of
      */
-    public List<Event> searchEvent(String keyword) {
+    List<Event> searchEvent(String keyword) {
         List<Event> list;
         if (Objects.isNull(keyword)) {
             list = new ArrayList<>();
@@ -123,11 +120,11 @@ class EventLog {
         return list;
     }
 
-    public Event searchEvent(int id) {
+    Event searchEvent(int id) {
         return this.getAllEvents().stream().filter(e -> Objects.equals(e.getId(), id)).findFirst().orElse(null);
     }
 
-    public Collection<Event> getAllEvents() {
+    Collection<Event> getAllEvents() {
         this.assignEventId();
         return this.syncTreeSet;
     }
@@ -135,7 +132,7 @@ class EventLog {
     /**
      * display events in ascending order
      */
-    public void dumpEvents() {
+    void dumpEvents() {
         this.getAllEvents().stream().forEach(System.out::println);
     }
 
@@ -150,12 +147,12 @@ class EventLog {
      * @param id the order number of a target event in the collection
      * @return true if the event is present and successfully removed
      */
-    public boolean deleteEvent(int id) {
+    boolean deleteEvent(int id) {
         return this.syncTreeSet.remove(this.searchEvent(id));
     }
 
     // ASSESSOR METHODS
-    public LocalTime getInitialTime() {
+    LocalTime getInitialTime() {
         return initialTime;
     }
 

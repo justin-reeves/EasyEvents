@@ -25,7 +25,7 @@ public class EventTest {
     @Test
     public void createNewEvent_onlyInputTimestamp() throws EventConstructorInvalidInputException {
         event = new Event(TIMESTAMP_HHMMSS);
-        assertTrue(event.getEventTimeStamp().toString().equals(TIMESTAMP_HHMMSS ));
+        assertTrue(event.getEventTimeStamp().toString().equals(TIMESTAMP_HHMMSS));
     }
 
     @Test(expected = EventConstructorInvalidInputException.class)
@@ -105,7 +105,7 @@ public class EventTest {
     }
 
     @Test
-    public void compareTo_compareTimestampThenDescription(){
+    public void compareTo_compareTimestampThenDescription() {
         event = new Event();
         Event other = new Event();
         assertTrue(event.compareTo(other) == 0); // timestamp different

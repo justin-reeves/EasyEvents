@@ -12,10 +12,12 @@ import java.util.Objects;
  * Created On: 3/26/2021
  */
 class Event implements Comparable<Event> {
+
     // FIELDS
     private LocalTime timeStamp; // time stamp in LocalTime format hh:mm:ss
     private String description; // note or event description
     private int id; // the sequence of events ordered by time stamp; each session's first event id=1
+
 
     //region CONSTRUCTOR
     Event() {
