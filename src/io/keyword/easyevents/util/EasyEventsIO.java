@@ -14,13 +14,12 @@ import java.util.concurrent.TimeUnit;
 public class EasyEventsIO {
 
     // FIELDS
-    private static Prompter prompter;
+    private static Prompter prompter = new Prompter(new Scanner(System.in));
 
     // CONSTRUCTORS
 
     private EasyEventsIO() {
         // All static utility class. Prevent instantiation.
-        prompter = new Prompter(new Scanner(System.in));
     }
 
     // BUSINESS METHODS
