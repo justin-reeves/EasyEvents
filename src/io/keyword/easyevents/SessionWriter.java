@@ -32,9 +32,7 @@ class SessionWriter {
     }
     // endregion
 
-
     //region BUSINESS METHODS
-
     /**
      * write all recorded events in to a file
      * this file consists of:
