@@ -75,7 +75,7 @@ public enum Session {
                     "^end$|" +
                             "^event$|" +
                             "^event +" + timeCommandRegex + " *$|" +
-                            "help .*",
+                            "help *.*",
                     "Invalid command. Did you mean 'end' or 'event'? Type 'help end' or 'help event' for usage information.");
 
             if (input.startsWith("event")) {
