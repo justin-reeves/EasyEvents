@@ -10,9 +10,9 @@ events during that video. If the software does automatically provide the capabil
 
 EasyEvents aims to provide a way to log video recording notes (events) in tandem with a video recording. We allow users,
 via the command line, to input event notes which are then marked with a timestamp relative to a given start time. These
-events are then logged to an output file alongside a URL which brings the viewer of the notes to the specified timestamp
-in the video recording. This provides for a user-specified granularity of event descriptions and frequency and makes for
-reviewing specific topics easier and faster than painstakingly skipping through a recording.
+events are then logged to an output which the user can reference to easily skip to a specific timestamp. This provides
+for a user-specified granularity of event descriptions and frequency and makes for reviewing specific topics easier and
+faster than painstakingly skipping through a recording.
 
 #### Basic Idea
 
@@ -23,8 +23,9 @@ reviewing specific topics easier and faster than painstakingly skipping through 
    recordings timestamp) relative to start time.
 3. Ask for recording URL.
 4. Attach timestamp to URL via a [query parameter?]
-5. Output recording data to file [.txt, .csv, etc.]
-   a. User can specify file output name OR b. Default name created.
+5. Output recording data to file [.txt]
+   a. User can specify file output name (at start) OR 
+   b. Default name created.
 6. (Outside of EasyEvents): Any user can then open the file and skip straight to a specific event.
 
 #### Project Structure
