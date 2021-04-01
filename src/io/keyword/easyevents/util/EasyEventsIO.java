@@ -92,7 +92,7 @@ public class EasyEventsIO {
                 "Welcome to Easy Events!\n" +
                         "-------------------------------------------------------------------------------------------------------\n" +
                         "Type 'help' [command] at any time for usage statements.\n" +
-                        "\nType 'start –n [Log name] -t [time: hh:mm:ss]' to begin event logging.\n" +
+                        "\nType 'start -n [Log name] -t [time: hh:mm:ss]' to begin event logging.\n" +
                         "\nDuring logging:\n" +
                         "\tCreate an event description by typing:\n" +
                         "\t\t\t(1) 'event [time: hh:mm:ss]'\n" +
