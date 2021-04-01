@@ -11,7 +11,7 @@ import static org.junit.Assert.assertEquals;
 
 public class EasyEventsHelperTest {
 
-    @Test (expected = DateTimeParseException.class)
+    @Test(expected = DateTimeParseException.class)
     public void localTimeFromString_throwDateTimeParseException_notHhMmSsFormat() {
         System.out.println(LocalTime.parse("0:0:18"));
     }
@@ -40,14 +40,13 @@ public class EasyEventsHelperTest {
 
     @Test
     public void localtimeToFormattedString_convertHmsToHhMmSs() {
-        LocalTime time = LocalTime.of(3,2);
-        System.out.println(time);
+        LocalTime time = LocalTime.of(3, 2);
         assertEquals(EasyEventsHelper.localtimeToFormattedString(time), "03:02:00");
     }
 
     @Test
-    public void printTest(){
+    public void printTest() {
         System.out.println(EasyEventsHelper.localTimeFromString("0:0:18"));
-        System.out.println(EasyEventsHelper.localtimeToFormattedString(LocalTime.of(13,13,13)));
+        System.out.println(EasyEventsHelper.localtimeToFormattedString(LocalTime.of(13, 13, 13)));
     }
 }

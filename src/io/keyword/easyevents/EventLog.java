@@ -2,7 +2,6 @@ package io.keyword.easyevents;
 
 import io.keyword.easyevents.util.EasyEventsHelper;
 
-import java.time.DateTimeException;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -10,30 +9,29 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * singleton class - only one instance
- * this class serves as a events collector
- * it provide add, search, delete and output events services
- * syn
+ * singleton class - one instance
+ * this class serves as a collector of events
+ * it provide add, search, delete, output events and supported services
  * <p>
  * Created By: Justin Reeves, Pasang Sherpa, Xiaotian Wang (Xander)
  * Created On: 3/26/2021
  */
 class EventLog {
 
-    // FIELDS
-    private Set<Event> events = new TreeSet<>(); // store all events; make it navigable
-    private Set<Event> syncTreeSet = Collections.synchronizedSet(events); // for client - server version app
-
-    private static EventLog eventLog = new EventLog();
-
+    //region FIELDS
+    private SortedSet<Event> events = new TreeSet<>(); // store all events; make it navigable
+    private SortedSet<Event> syncTreeSet = Collections.synchronizedSortedSet(events); // for distributed client - server version app
+    private static final EventLog eventLog = new EventLog();
     private LocalTime initialTime = LocalTime.now(); // current local time
-    private long offset = 0;
+    private long offset = 0; // store offset time and print in output file;
+    //endregion
 
-    // CONSTRUCTORS - singleton
+    //region CONSTRUCTORS - singleton
     private EventLog() {
     }
+    //endregion
 
-    // BUSINESS METHODS
+    //region BUSINESS METHODS
     public static EventLog getInstance() {
         return eventLog;
     }
@@ -41,13 +39,13 @@ class EventLog {
     /**
      * start this EventLog by creating an initiate event
      *
-     * @param initialTime
+     * @param initialTime time when the eventLog is created
      */
     public void start(LocalTime initialTime) {
-        if(initialTime.isAfter(LocalTime.now())){
+        if (initialTime.isAfter(LocalTime.now())) {
             throw new EventConstructorInvalidInputException(String.format("Session initial time %s is after the current local time %s. Please try again!"
-                    ,initialTime.format(DateTimeFormatter.ofPattern("HH:mm:ss"))
-                    ,LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"))));
+                    , initialTime.format(DateTimeFormatter.ofPattern("HH:mm:ss"))
+                    , LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"))));
         }
         this.setInitialTime(initialTime);
         this.addEventNoOffset(LocalTime.of(0, 0, 0), "Initial Event - Session starts;");
@@ -59,31 +57,23 @@ class EventLog {
 
     /**
      * inserting a last event in events collection
+     * cannot insert an event in the future
      *
-     * @param endTime
+     * @param endTime the end event's time stamp e.g. LocalTime.now() or "11:11:11"
      */
     public void end(LocalTime endTime) {
-        this.addEventOffset(LocalTime.now(), "Last Event - Session ends;");
+        this.addEventOffset(endTime, "Last Event - Session ends;");
     }
 
     public void end(String endTime) {
         this.addEventNoOffset(EasyEventsHelper.localTimeFromString(endTime), "Last Event - Session ends;");
     }
 
-    public Event getFirstEvent() {
-        this.assignEventId();
-        return ((TreeSet<Event>) this.syncTreeSet).first();
-    }
-
-    public Event getLastEvent() {
-        this.assignEventId();
-        return ((TreeSet<Event>) this.syncTreeSet).last();
-    }
-
     /**
      * this allows the user to input specific time elapsed from initial time
-     * @param timeStamp
-     * @param description
+     *
+     * @param timeStamp   time elapsed from initial time
+     * @param description event's description
      */
     public void addEventNoOffset(LocalTime timeStamp, String description) {
         Event event = this.createEvent(timeStamp, description);
@@ -97,9 +87,9 @@ class EventLog {
      * @param description event description
      */
     public void addEventOffset(LocalTime timeStamp, String description) {
-        if(timeStamp.isBefore(this.initialTime)){
+        if (timeStamp.isBefore(this.initialTime)) {
             throw new EventConstructorInvalidInputException(String.format("Event timestamp %s is before the initial timestamp %s. Please try again!", timeStamp, this.initialTime.format(DateTimeFormatter.ofPattern("HH:mm:ss"))));
-        } else if(timeStamp.isAfter(LocalTime.now())){
+        } else if (timeStamp.isAfter(LocalTime.now())) {
             throw new EventConstructorInvalidInputException(String.format("Event timestamp %s is after the current local time %s. Please try again!", timeStamp, LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"))));
         }
         Event event = this.createEvent(this.timeFromDuration(this.getDuration(initialTime, timeStamp)), description);
@@ -107,10 +97,10 @@ class EventLog {
     }
 
     /**
-     * collect a list of events those contain the input keyword in event's description
+     * collect a list of events those contain the input keyword in each event's description
      *
      * @param keyword can be any String
-     * @return list of
+     * @return list of events or empty list if cannot match keyword
      */
     public List<Event> searchEvent(String keyword) {
         List<Event> list;
@@ -123,63 +113,86 @@ class EventLog {
         return list;
     }
 
+    /**
+     * search event in collections by id
+     *
+     * @param id event's sequence id
+     * @return single event object or null if no existence
+     */
     public Event searchEvent(int id) {
         return this.getAllEvents().stream().filter(e -> Objects.equals(e.getId(), id)).findFirst().orElse(null);
-    }
-
-    public Collection<Event> getAllEvents() {
-        this.assignEventId();
-        return this.syncTreeSet;
     }
 
     /**
      * display events in ascending order
      */
     public void dumpEvents() {
-        this.getAllEvents().stream().forEach(System.out::println);
+        this.getAllEvents().forEach(System.out::println);
     }
 
-    void clearEvents() {
-        this.events = new TreeSet<>();
-        syncTreeSet = Collections.synchronizedSet(events);
-    }
     /**
      * remove an event from the event collection if that event is present
      *
      * @param id the order number of a target event in the collection
-     * @return true if the event is present and successfully removed
      */
-    public boolean deleteEvent(int id) {
-        return this.syncTreeSet.remove(this.searchEvent(id));
+    public void deleteEvent(int id) {
+        this.syncTreeSet.remove(this.searchEvent(id));
     }
 
-    // ASSESSOR METHODS
+    /**
+     * allocate a new collection; let JVM takes care the old one
+     * for testing, not for public yet
+     */
+    void clearEvents() {
+        this.events = new TreeSet<>();
+        syncTreeSet = Collections.synchronizedSortedSet(events);
+    }
+    //endregion
+
+    //region ASSESSOR METHODS
     public LocalTime getInitialTime() {
         return initialTime;
     }
 
     /**
-     * if offset exist
-     * @param time
+     * calculate offset between input initial time and current LocalTime
+     * then assign given time to initialTime
+     *
+     * @param time user input initial time
      */
     private void setInitialTime(LocalTime time) {
         this.setOffset(time);
         this.initialTime = time;
     }
 
-    // HELPER METHODS
-    private void setOffset(LocalTime time) {
-        this.offset = this.getDuration(time, LocalTime.now()).toSeconds();
-        if (Math.abs(offset) <= 1) {
-            this.offset = 0;
-        }
+    public Event getFirstEvent() {
+        this.assignEventId();
+        return this.syncTreeSet.first();
     }
+
+    public Event getLastEvent() {
+        this.assignEventId();
+        return this.syncTreeSet.last();
+    }
+
+    /**
+     * mark sorted event's sequence and return it
+     *
+     * @return sorted events with timestamps
+     */
+    public Collection<Event> getAllEvents() {
+        this.assignEventId(); // assign event id on sorted events
+        return this.syncTreeSet;
+    }
+    //endregion
+
+    //region HELPER METHODS
 
     /**
      * calculate duration between two events
      *
-     * @param event1
-     * @param event2
+     * @param event1 first event
+     * @param event2 second event
      * @return a Duration object - time-based amount of time
      */
     private Duration getDuration(LocalTime event1, LocalTime event2) {
@@ -192,9 +205,10 @@ class EventLog {
 
     /**
      * create an new event then return this event instance
-     * @param timeStamp current local time; time elapsed will be calculated
+     *
+     * @param timeStamp   current local time; time elapsed will be calculated
      * @param description event description
-     * @return
+     * @return new Event instance
      */
     private Event createEvent(String timeStamp, String description) {
         return new Event(timeStamp, description);
@@ -214,4 +228,15 @@ class EventLog {
             e.setId(i);
         }
     }
+
+    /**
+     * calculate offset time if this EventLog initial time is earlier than the LocalTime
+     */
+    private void setOffset(LocalTime time) {
+        this.offset = this.getDuration(time, LocalTime.now()).toSeconds();
+        if (Math.abs(offset) <= 1) {
+            this.offset = 0; // no offset, if difference is less than and equal to 1
+        }
+    }
+    //endregion
 }

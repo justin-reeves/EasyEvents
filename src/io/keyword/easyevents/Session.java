@@ -4,6 +4,7 @@ import io.keyword.easyevents.util.EasyEventsHelper;
 import io.keyword.easyevents.util.EasyEventsIO;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.concurrent.TimeUnit;
@@ -147,7 +148,8 @@ public class Session {
 
     private void writeToFile() {
         try {
-            SessionWriter.writeFile(getSessionName(), SessionWriter.FileType.TXT, eventLog.getAllEvents());
+            Path p = SessionWriter.writeFile(getSessionName(), SessionWriter.FileType.TXT, eventLog.getAllEvents());
+            System.out.println(p);
         } catch (IOException e) {
             System.out.println(e.toString());
         }
