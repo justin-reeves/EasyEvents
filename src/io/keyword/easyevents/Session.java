@@ -79,10 +79,11 @@ public enum Session {
                     "Invalid command. Did you mean 'end' or 'event'? Type 'help end' or 'help event' for usage information.");
 
             if (input.startsWith("event")) {
+                LocalTime userTime = LocalTime.now();
                 String description = EasyEventsIO.prompt("Description: ");
 
                 try {
-                    createEvent(input, description);
+                    createEvent(userTime, input, description);
                 } catch (EventConstructorInvalidInputException e) {
                     System.out.println(e.getMessage());
                 }
@@ -95,8 +96,8 @@ public enum Session {
         }
     }
 
-    private static void createEvent(String input, String description) throws EventConstructorInvalidInputException {
-        LocalTime time = LocalTime.now();
+    private static void createEvent(LocalTime userTime, String input, String description) throws EventConstructorInvalidInputException {
+        LocalTime time = userTime;
 
         if (input.contains("-t")) {
             time = EasyEventsHelper.localTimeFromString(input.split(" ")[2]);
